@@ -17,10 +17,12 @@ export const Header = () => {
                 {/* Kiểm tra trạng thái load đăng nhập hay chưa góc bên trái Header */}
                 <ClerkLoaded>
                     <SignedIn>
-                        <UserButton />
+                        <UserButton/>
                     </SignedIn>
                     <SignedOut>
-
+                        <SignInButton mode="modal">
+                            <button className="btn btn-lg btn-ghost">Login</button>
+                        </SignInButton>
                     </SignedOut>
                 </ClerkLoaded>
             </div>
