@@ -6,6 +6,7 @@ import db from "@/db/drizzle";
 import { userProgress } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
 
 export const upsertUserProgress = async (courseId: number) => {
     const {userId} = await auth();
@@ -29,11 +30,13 @@ export const upsertUserProgress = async (courseId: number) => {
     const existingUserProgress = await getUserProgress();
 
     if (existingUserProgress) {
-        await db.update(userProgress).set({
-            activeCourseId: courseId,
-            userName: user.firstName || "User",
-            userImageSrc: user.imageUrl || "/mascot.svg",
-        });
+        await db.update(userProgress)
+            .set({
+                activeCourseId: courseId,
+                userName: user.firstName || "User",
+                userImageSrc: user.imageUrl || "/mascot.svg",
+            })
+            .where(eq(userProgress.userId, userId)); // Chỉ cập nhật user hiện tại
 
         revalidatePath("/courses");
         revalidatePath("/learn");
