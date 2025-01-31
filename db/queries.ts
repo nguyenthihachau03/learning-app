@@ -43,23 +43,44 @@ export const getUnits = cache(async () => {
         },
     });
 
-    const normalizedData = data.map((unit) => {
-        const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
-            const allCompletedChallenges = lesson.challenges.every((challenge) => {
-                return (
-                    challenge.challengeProgress &&
-                    challenge.challengeProgress.length > 0 &&
-                    challenge.challengeProgress.every((progress) => progress.completed)
-                );
-            });
+    // //vòng lặp lồng nhau qua unit → lessons → challenges → challengeProgress, để kiểm tra xem tất cả các challenge của mỗi lesson đã hoàn thành chưa.
+    // const normalizedData = data.map((unit) => {
+    //     const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
+    //         const allCompletedChallenges = lesson.challenges.every((challenge) => {
+    //             return (
+    //                 challenge.challengeProgress &&
+    //                 challenge.challengeProgress.length > 0 &&
+    //                 challenge.challengeProgress.every((progress) => progress.completed)
+    //             );
+    //         });
 
-            return { ...lesson, completed: allCompletedChallenges };
-        });
+    //         return { ...lesson, completed: allCompletedChallenges };
+    //     });
 
-        return { ...unit, lessons: lessonsWithCompletedStatus };
-    });
+    //     return { ...unit, lessons: lessonsWithCompletedStatus };
+    // });
 
-    return normalizedData;
+    // return normalizedData;
+
+    return data.map((unit) => ({
+        ...unit,
+        lessons: unit.lessons.map((lesson) => {
+            let allCompleted = true; // Giả định lesson đã hoàn thành
+
+            for (const challenge of lesson.challenges) {
+                if (
+                    !challenge.challengeProgress ||
+                    challenge.challengeProgress.length === 0 ||
+                    challenge.challengeProgress.some((progress) => !progress.completed)
+                ) {
+                    allCompleted = false;
+                    break; // Nếu có 1 challenge chưa hoàn thành, dừng ngay
+                }
+            }
+
+            return { ...lesson, completed: allCompleted };
+        }),
+    }));
 });
 
 export const getCourses = cache(async () => {
