@@ -53,6 +53,10 @@ export const getUnits = cache(async () => {
     // //vòng lặp lồng nhau qua unit → lessons → challenges → challengeProgress, để kiểm tra xem tất cả các challenge của mỗi lesson đã hoàn thành chưa.
     // const normalizedData = data.map((unit) => {
     //     const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
+    //         if (lesson.challenges.length === 0) {
+    //             return { ...lesson, completed: false }
+    //         }
+
     //         const allCompletedChallenges = lesson.challenges.every((challenge) => {
     //             return (
     //                 challenge.challengeProgress &&
@@ -72,6 +76,11 @@ export const getUnits = cache(async () => {
     return data.map((unit) => ({
         ...unit,
         lessons: unit.lessons.map((lesson) => {
+            // Nếu lesson không có challenge nào, trả về completed: false
+            if (lesson.challenges.length === 0) {
+                return { ...lesson, completed: false };
+            }
+
             let allCompleted = true; // Giả định lesson đã hoàn thành
 
             for (const challenge of lesson.challenges) {
@@ -88,6 +97,7 @@ export const getUnits = cache(async () => {
             return { ...lesson, completed: allCompleted };
         }),
     }));
+
 });
 
 export const getCourses = cache(async () => {
