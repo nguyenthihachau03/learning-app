@@ -1,11 +1,12 @@
 "use client"
 
-import Link from "next/link";
-import { Check, Crown, Star } from "lucide-react";
-import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Check, Crown, Star } from "lucide-react";
 
 type Props = {
     id: number;
