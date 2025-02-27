@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
 import { lessons, units as unitsSchema } from "@/db/schema";
-import { title } from "process";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";

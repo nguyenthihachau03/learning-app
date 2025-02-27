@@ -191,6 +191,99 @@ const main = async () => {
             },
         ]);
 
+        await db.insert(schema.challenges).values([
+            {
+                id: 4,
+                lessonId: 2, //Verb
+                type: "SELECT",
+                order: 1,
+                question: 'Which one of these is the "the man"?',
+            },
+            {
+                id: 5,
+                lessonId: 2, //Verb
+                type: "ASSIST",
+                order: 2,
+                question: '"the man"',
+            },
+            {
+                id: 6,
+                lessonId: 2, //Verb
+                type: "SELECT",
+                order: 3,
+                question: 'Which one of these is the "the robot"?',
+            },
+        ]);
+
+        await db.insert(schema.challengeOptions).values([
+            {
+                challengeId: 4, //Which one of these is the "the man"?
+                imageSrc: "/man.svg",
+                correct: true,
+                text: "el hombre",
+                audioSrc: "/es_man.mp3",
+            },
+            {
+                challengeId: 4, //Which one of these is the "the man"?
+                imageSrc: "/woman.svg",
+                correct: false,
+                text: "la mujer",
+                audioSrc: "/es_woman.mp3",
+            },
+            {
+                challengeId: 4, //Which one of these is the "the man"?
+                imageSrc: "/robot.svg",
+                correct: false,
+                text: "el robot",
+                audioSrc: "/es_robot.mp3",
+            },
+        ]);
+
+        await db.insert(schema.challengeOptions).values([
+            {
+                challengeId: 5, //"the man"
+                correct: true,
+                text: "el hombre",
+                audioSrc: "/es_man.mp3",
+            },
+            {
+                challengeId: 5, //"the man"
+                correct: false,
+                text: "la mujer",
+                audioSrc: "/es_woman.mp3",
+            },
+            {
+                challengeId: 5, //"the man"
+                correct: false,
+                text: "el robot",
+                audioSrc: "/es_robot.mp3",
+            },
+        ]);
+
+        await db.insert(schema.challengeOptions).values([
+            {
+                challengeId: 6, //Which one of these is the "the robot"?
+                imageSrc: "/man.svg",
+                correct: false,
+                text: "el hombre",
+                audioSrc: "/es_man.mp3",
+            },
+            {
+                challengeId: 6, //Which one of these is the "the robot"?
+                imageSrc: "/woman.svg",
+                correct: false,
+                text: "la mujer",
+                audioSrc: "/es_woman.mp3",
+            },
+            {
+                challengeId: 6, //Which one of these is the "the robot"?
+                imageSrc: "/robot.svg",
+                correct: true,
+                text: "el robot",
+                audioSrc: "/es_robot.mp3",
+            },
+        ]);
+
         console.log("Seeding finished");
     } catch (error) {
         console.error(error);
