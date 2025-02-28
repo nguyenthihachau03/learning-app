@@ -1,6 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, integer, pgEnum, pgTable, serial, text } from "drizzle-orm/pg-core";
-import { title } from "process";
+import { boolean, integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const courses = pgTable("courses", {
     id: serial("id").primaryKey(),
@@ -111,3 +110,21 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
         references: [courses.id],
     }),
 }));
+
+export const userSubscription = pgTable("user_subscription", {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull().unique(),
+    stripeCustomerId: text("stripe_customer_id").notNull().unique(), //stripe_customer_id
+    stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(), //stripe_subscription_id
+    stripePriceId: text("stripe_price_id").notNull(), //stripe_price_id
+    stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(), //stripe_current_period_end
+});
+
+export const userSubscriptionPayOS = pgTable("user_subscription_payos", {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull().unique(),
+    transactionId: text("transaction_id").notNull().unique(), // Mã giao dịch PayOS
+    orderCode: text("order_code").notNull().unique(), // Mã đơn hàng PayOS
+    priceId: text("price_id").notNull(),
+    currentPeriodEnd: timestamp("current_period_end").notNull(), // Ngày hết hạn gói Pro
+});

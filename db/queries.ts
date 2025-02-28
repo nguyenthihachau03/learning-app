@@ -1,8 +1,9 @@
 import { cache } from "react";
 import db from "@/db/drizzle";
 import { auth } from "@clerk/nextjs/server";
-import { challengeProgress, challenges, courses, lessons, units, userProgress } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { challengeProgress, challenges, courses, lessons, units, userProgress, userSubscription } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
+import { userSubscriptionPayOS } from "@/db/schema";
 
 export const getUserProgress = cache(async () => {
     const { userId } = await auth();
@@ -114,7 +115,7 @@ export const getCourseById = cache(async (courseId: number) => {
     return data;
 });
 
-export const getCourseProgress = cache(async() => {
+export const getCourseProgress = cache(async () => {
     const { userId } = await auth();
     const userProgress = await getUserProgress();
 
@@ -160,7 +161,7 @@ export const getCourseProgress = cache(async() => {
 });
 
 export const getLesson = cache(async (id?: number) => {
-    const {userId} = await auth();
+    const { userId } = await auth();
 
     if (!userId) {
         return null;
@@ -228,3 +229,14 @@ export const getLessonPercentage = cache(async () => {
 
     return percentage;
 });
+
+export async function getUserSubscription(userId: string) {
+    const subscription = await db.query.userSubscriptionPayOS.findFirst({
+        where: eq(userSubscriptionPayOS.userId, userId),
+        orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
+    });
+
+    return subscription && subscription.currentPeriodEnd > new Date()
+        ? { isActive: true, currentPeriodEnd: subscription.currentPeriodEnd }
+        : { isActive: false };
+};
