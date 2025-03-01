@@ -8,9 +8,7 @@ import { getUserProgress } from "@/db/queries";
 
 import { Items } from "./items";
 
-const ShopPage = async ({ searchParams }: { searchParams: Record<string, string | undefined> }) => {
-    const payment = searchParams?.payment ?? "";
-
+const ShopPage = async () => {
     const userProgress = await getUserProgress();
     const userSubscription = await getUserSubscriptionPayOS();
 
@@ -19,9 +17,6 @@ const ShopPage = async ({ searchParams }: { searchParams: Record<string, string 
     }
 
     const isPro = !!userSubscription?.isActive;
-
-    // Nếu thanh toán thành công, reload lại trang
-    const shouldReload = payment === "success";
 
     return (
         <div className="flex flex-row-reverse gap-[48px] px-6">
@@ -45,7 +40,6 @@ const ShopPage = async ({ searchParams }: { searchParams: Record<string, string 
                         points={userProgress.points}
                         hasActiveSubscription={isPro}
                     />
-                    {shouldReload && <meta httpEquiv="refresh" content="2;url=/shop" />}
                 </div>
             </FeedWrapper>
         </div>
