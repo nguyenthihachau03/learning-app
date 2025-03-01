@@ -1,0 +1,56 @@
+name: Learning App Deployment
+
+on:
+  push:
+    branches:
+      - production  # ✅ Chạy khi push vào branch production
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest  # ✅ Chạy trên môi trường Ubuntu GitHub Actions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # ✅ Lấy code từ branch production
+
+      - name: Setup SSH Key and Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/aws_key.pem
+          chmod 600 ~/.ssh/aws_key.pem
+          ssh-keyscan -H 13.229.207.70 >> ~/.ssh/known_hosts
+
+      - name: Deploy to AWS EC2
+        run: |
+          ssh -i ~/.ssh/aws_key.pem ubuntu@13.229.207.70 << 'EOF'
+            cd ~/learning-app  # ✅ Vào thư mục dự án trên VPS
+            
+            echo "🔄 Pulling latest code..."
+            git checkout production
+            git pull origin production
+
+            echo "📦 Installing dependencies..."
+            npm install --force  # ✅ Cài đặt lại package
+
+            echo "📄 Writing .env file..."
+            cat <<EOT > .env
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+            CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+            PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }}
+            PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }}
+            PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }}
+            NEXT_PUBLIC_PAYOS_CHECKOUT_URL=${{ secrets.NEXT_PUBLIC_PAYOS_CHECKOUT_URL }}
+            EOT
+
+            echo "⚡ Building application..."
+            npm run build
+
+            echo "🚀 Restarting application with PM2..."
+            pm2 stop learning-app || true
+            pm2 start npm --name "learning-app" -- run start
+            pm2 save
+
+            echo "✅ Deployment completed!"
+          EOF
