@@ -8,11 +8,7 @@ import { getUserProgress } from "@/db/queries";
 
 import { Items } from "./items";
 
-type ShopPageProps = {
-    searchParams: Record<string, string | undefined>;
-  };
-
-const ShopPage = async ({ searchParams }: ShopPageProps) => {
+const ShopPage = async ({ searchParams }: { searchParams: Record<string, string | undefined> }) => {
     const payment = searchParams?.payment ?? "";
 
     const userProgress = await getUserProgress();
