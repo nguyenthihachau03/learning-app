@@ -9,6 +9,8 @@ import { getUserProgress } from "@/db/queries";
 import { Items } from "./items";
 
 const ShopPage = async ({ searchParams }: { searchParams: { payment?: string } }) => {
+    const payment = searchParams.payment || undefined; // ✅ Đảm bảo kiểu dữ liệu đúng
+
     const userProgress = await getUserProgress();
     const userSubscription = await getUserSubscriptionPayOS();
 
@@ -19,7 +21,7 @@ const ShopPage = async ({ searchParams }: { searchParams: { payment?: string } }
     const isPro = !!userSubscription?.isActive;
 
     // Nếu thanh toán thành công, reload lại trang
-    const shouldReload = searchParams?.payment === "success";
+    const shouldReload = payment === "success";
 
     return (
         <div className="flex flex-row-reverse gap-[48px] px-6">
@@ -43,7 +45,7 @@ const ShopPage = async ({ searchParams }: { searchParams: { payment?: string } }
                         points={userProgress.points}
                         hasActiveSubscription={isPro}
                     />
-                    {shouldReload && <meta httpEquiv="refresh" content="2;url=/shop" />} {/* ⏳ Reload sau 2s */}
+                    {shouldReload && <meta httpEquiv="refresh" content="2;url=/shop" />}
                 </div>
             </FeedWrapper>
         </div>
