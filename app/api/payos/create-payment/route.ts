@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       amount,
       description,
       items: [{ name: "Nâng cấp tài khoản VIP", quantity: 1, price: amount }],
-      cancelUrl: absoluteUrl("/shop?payment=failed"),
+      cancelUrl: absoluteUrl("/shop/page.tsx"),
       returnUrl: absoluteUrl(`/shop?payment=success&orderCode=${orderCode}`), // ✅ Luôn về đúng /shop
       embedded: false, // ❌ Không nhúng iframe
     };
