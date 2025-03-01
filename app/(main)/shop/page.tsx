@@ -8,8 +8,12 @@ import { getUserProgress } from "@/db/queries";
 
 import { Items } from "./items";
 
-const ShopPage = async ({ searchParams }: { searchParams: { payment?: string } }) => {
-    const payment = searchParams.payment || undefined; // ✅ Đảm bảo kiểu dữ liệu đúng
+type ShopPageProps = {
+    searchParams: Record<string, string | undefined>;
+  };
+
+const ShopPage = async ({ searchParams }: ShopPageProps) => {
+    const payment = searchParams?.payment ?? "";
 
     const userProgress = await getUserProgress();
     const userSubscription = await getUserSubscriptionPayOS();
