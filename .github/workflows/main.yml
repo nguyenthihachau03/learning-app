@@ -23,16 +23,35 @@ jobs:
       - name: Deploy to AWS EC2
         run: |
           ssh -i ~/.ssh/aws_key.pem ubuntu@13.229.207.70 << 'EOF'
-            cd ~/learning-app  # ✅ Vào thư mục dự án trên VPS
+            set -e  # Dừng ngay nếu có lỗi xảy ra
             
+            echo "🔍 Kiểm tra thư mục project..."
+            if [ ! -d "/home/ubuntu/learning-app/.git" ]; then
+              echo "🚀 Repository không tồn tại. Cloning..."
+              git clone https://github.com/nguyenthihachau03/learning-app.git /home/ubuntu/learning-app
+            fi
+
+            cd /home/ubuntu/learning-app
+
             echo "🔄 Pulling latest code..."
+            git fetch origin
+            git reset --hard origin/production
+            git clean -fd
             git checkout production
             git pull origin production
 
-            cd ~/learning-app  # ✅ Đảm bảo đang ở thư mục đúng
+            echo "📦 Kiểm tra và cài đặt Node.js, npm, PM2 nếu chưa có..."
+            if ! command -v node &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+              sudo apt install -y nodejs
+            fi
+
+            if ! command -v pm2 &> /dev/null; then
+              npm install -g pm2
+            fi
 
             echo "📦 Installing dependencies..."
-            npm install --force  # ✅ Cài đặt lại package
+            npm install --force
 
             echo "📄 Writing .env file..."
             cat <<EOT > .env
