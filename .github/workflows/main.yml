@@ -24,7 +24,14 @@ jobs:
         run: |
           ssh -i ~/.ssh/aws_key.pem ubuntu@13.229.207.70 << 'EOF'
             set -e  # Dừng ngay nếu có lỗi xảy ra
-            
+
+            echo "🔍 Kiểm tra quyền sudo..."
+            if ! sudo -n true 2>/dev/null; then
+              echo "⚠️ User ubuntu chưa có quyền sudo, cấp quyền ngay..."
+              echo "ubuntu ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/ubuntu
+              sudo chmod 0440 /etc/sudoers.d/ubuntu
+            fi
+
             echo "🔍 Kiểm tra thư mục project..."
             if [ ! -d "/home/ubuntu/learning-app/.git" ]; then
               echo "🚀 Repository không tồn tại. Cloning..."
@@ -46,12 +53,8 @@ jobs:
               sudo apt install -y nodejs
             fi
 
-            # ✅ Cài đặt PM2 vào thư mục user thay vì hệ thống để tránh lỗi permission
             if ! command -v pm2 &> /dev/null; then
-              npm install -g pm2 --prefix ~/.npm-global
-              export PATH=$HOME/.npm-global/bin:$PATH
-              echo 'export PATH=$HOME/.npm-global/bin:$PATH' >> ~/.bashrc
-              source ~/.bashrc
+              sudo npm install -g pm2
             fi
 
             echo "📦 Installing dependencies..."
