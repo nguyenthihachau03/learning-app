@@ -29,9 +29,8 @@ jobs:
             if sudo -n true 2>/dev/null; then
               echo "User ubuntu đã có quyền sudo."
             else
-              echo "User ubuntu chưa có quyền sudo, cấp quyền ngay..."
-              echo "ubuntu ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/ubuntu
-              sudo chmod 0440 /etc/sudoers.d/ubuntu
+              echo "❌ User ubuntu chưa có quyền sudo. Hãy kiểm tra lại quyền user!"
+              exit 1
             fi
 
             echo "✅ Kiểm tra thư mục project..."
@@ -61,7 +60,7 @@ jobs:
 
             echo "✅ Installing dependencies..."
             npm install --force
-            npm audit fix --force  # Sửa lỗi bảo mật
+            npm audit fix --force  # Sửa lỗi bảo mật nếu có
 
             echo "✅ Writing .env file..."
             cat > .env <<EOF_ENV
@@ -73,7 +72,7 @@ jobs:
             PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }}
             PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }}
             NEXT_PUBLIC_PAYOS_CHECKOUT_URL=${{ secrets.NEXT_PUBLIC_PAYOS_CHECKOUT_URL }}
-EOF_ENV
+          EOF_ENV
 
             echo "✅ Building application..."
             npm run build
