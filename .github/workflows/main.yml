@@ -3,15 +3,15 @@ name: Learning App Deployment
 on:
   push:
     branches:
-      - production  # ✅ Chạy khi push vào branch production
+      - production  #Chạy khi push vào branch production
 
 jobs:
   deployment:
-    runs-on: ubuntu-latest  # ✅ Chạy trên môi trường Ubuntu GitHub Actions
+    runs-on: ubuntu-latest  #Chạy trên môi trường GitHub Actions Ubuntu
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  # ✅ Lấy code từ branch production
+        uses: actions/checkout@v4  #Lấy code từ branch production
 
       - name: Setup SSH Key and Known Hosts
         run: |
@@ -20,39 +20,34 @@ jobs:
           chmod 600 ~/.ssh/aws_key.pem
           ssh-keyscan -H ${{ secrets.AWS_EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to AWS EC2
+      - name: Deploy to AWS EC2 and Restart App
         run: |
           ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
-            set -e
-            
-            echo "📄 Creating deployment script..."
-            cat <<'EOT' > /home/ubuntu/deploy.sh
-            #!/bin/bash
-            set -e
+            set -e  # Dừng ngay nếu có lỗi
 
-            echo "🔍 Kiểm tra quyền sudo..."
+            echo "Kiểm tra quyền sudo..."
             if ! sudo -n true 2>/dev/null; then
-              echo "⚠️ User ubuntu chưa có quyền sudo, cấp quyền ngay..."
+              echo "User ubuntu chưa có quyền sudo, cấp quyền ngay..."
               echo "ubuntu ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/ubuntu
               sudo chmod 0440 /etc/sudoers.d/ubuntu
             fi
 
-            echo "🔍 Kiểm tra thư mục project..."
+            echo "Kiểm tra thư mục project..."
             if [ ! -d "/home/ubuntu/learning-app/.git" ]; then
-              echo "🚀 Repository không tồn tại. Cloning..."
+              echo "Repository không tồn tại. Cloning..."
               git clone https://github.com/nguyenthihachau03/learning-app.git /home/ubuntu/learning-app
             fi
 
             cd /home/ubuntu/learning-app
 
-            echo "🔄 Pulling latest code..."
+            echo "Pulling latest code..."
             git fetch origin
             git reset --hard origin/production
             git clean -fd
             git checkout production
             git pull origin production
 
-            echo "📦 Kiểm tra và cài đặt Node.js, npm, PM2 nếu chưa có..."
+            echo "Kiểm tra và cài đặt Node.js, npm, PM2 nếu chưa có..."
             if ! command -v node &> /dev/null; then
               curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
               sudo apt install -y nodejs
@@ -62,10 +57,10 @@ jobs:
               sudo npm install -g pm2
             fi
 
-            echo "📦 Installing dependencies..."
+            echo "Installing dependencies..."
             npm install --force
 
-            echo "📄 Writing .env file..."
+            echo "Writing .env file..."
             cat <<EOF_ENV > .env
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
             CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
@@ -77,18 +72,15 @@ jobs:
             NEXT_PUBLIC_PAYOS_CHECKOUT_URL=${{ secrets.NEXT_PUBLIC_PAYOS_CHECKOUT_URL }}
             EOF_ENV
 
-            echo "⚡ Building application..."
+            echo "Building application..."
             npm run build
 
-            echo "🚀 Restarting application with PM2..."
+            echo "Restarting application with PM2..."
             pm2 stop learning-app || true
             pm2 start npm --name "learning-app" -- run start
             pm2 save
+            pm2 startup systemd
+            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
 
             echo "✅ Deployment completed!"
-            EOT
-
-            chmod +x /home/ubuntu/deploy.sh
-            echo "🚀 Running deployment script..."
-            /home/ubuntu/deploy.sh
           EOF
