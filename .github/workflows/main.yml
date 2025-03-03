@@ -60,7 +60,6 @@ jobs:
 
             echo "✅ Installing dependencies..."
             npm install --force
-            npm audit fix --force  # Sửa lỗi bảo mật nếu có
 
             echo "✅ Writing .env file..."
             cat > .env <<EOF_ENV
