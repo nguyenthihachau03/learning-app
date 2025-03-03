@@ -7,7 +7,7 @@ import { useState, useEffect, useTransition } from "react"; // ✅ Đã thêm us
 
 import { Button } from "@/components/ui/button";
 import { refillHearts } from "@/actions/user-progress";
-import EmbeddedPayment from "./embedded-payment"; // Import component nhúng thanh toán
+import { checkAndUpdateSubscription } from "@/actions/user-subscription"; // ✅ Import action server
 
 const POINT_TO_REFILL = 10; //export de reuse o file khac
 
@@ -23,18 +23,6 @@ export const Items = ({ hearts, points, hasActiveSubscription }: Props) => {
     const searchParams = useSearchParams();
     const paymentStatus = searchParams.get("payment");
 
-    useEffect(() => {
-        if (paymentStatus === "success") {
-            toast.success("Thanh toán thành công! Cập nhật tài khoản...");
-            setTimeout(() => {
-                router.replace("/shop"); // ✅ Xóa query param
-                window.location.reload();
-            }, 1500);
-        }
-    }, [paymentStatus]);
-
-    const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
-
     //hook
     const [pending, startTransition] = useTransition();
 
@@ -49,29 +37,77 @@ export const Items = ({ hearts, points, hasActiveSubscription }: Props) => {
         });
     };
 
-    // const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean>(props.hasActiveSubscription);
-    const [isActiveSubscription, setIsActiveSubscription] = useState<boolean>(hasActiveSubscription);
+    const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
-    const onUpgrade = () => {
-        fetch("/api/payos/create-payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                orderCode: Date.now(),
-                amount: 2000,
-                description: "Nâng cấp lên gói VIP",
-            }),
-        })
-            .then((res) => res.json())
-            .then((response) => {
-                if (response.success && response.data.checkoutUrl) {
-                    console.log("✅ Checkout URL nhận được:", response.data.checkoutUrl);
-                    window.open(response.data.checkoutUrl, "_blank"); // 🛠 Mở link trực tiếp
-                } else {
-                    toast.error("Không thể tạo link thanh toán");
-                }
-            })
-            .catch(() => toast.error("Lỗi khi gọi API thanh toán"));
+    // Kiểm tra trạng thái thanh toán khi user quay lại
+    useEffect(() => {
+        if (paymentStatus === "success") {
+            onCheckSubscription();
+        }
+    }, [paymentStatus]);
+
+    const onCheckSubscription = async () => {
+        if (!checkoutUrl) return;
+
+        const orderCode = checkoutUrl.split("orderCode=")[1]; // Lấy orderCode từ URL
+
+        const res = await checkAndUpdateSubscription(orderCode);
+
+        if (res.success) {
+            toast.success("Nâng cấp thành công! Cập nhật tài khoản...");
+            setTimeout(() => {
+                router.replace("/shop");
+                window.location.reload();
+            }, 1500);
+        } else {
+            toast.error("Không thể xác nhận thanh toán.");
+        }
+    };
+
+    const onUpgrade = async () => {
+        const generatedOrderCode = Date.now(); // ✅ Giới hạn số chữ số
+        console.log("📌 Order Code gửi đi:", generatedOrderCode);
+
+        try {
+            const res = await fetch("/api/payos/create-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    orderCode: generatedOrderCode,
+                    amount: 2000,
+                    description: "Nâng cấp lên gói VIP",
+                }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.error("❌ [Client] API trả về lỗi:", errorData);
+                toast.error("Không thể tạo link thanh toán");
+                return;
+            }
+
+            const response = await res.json();
+            console.log("✅ [Client] Nhận link thanh toán:", response.data.checkoutUrl);
+
+            //     if (response.success && response.data.checkoutUrl) {
+            //         const checkoutUrl = `${response.data.checkoutUrl}&orderCode=${generatedOrderCode}`; // ✅ Thêm orderCode vào URL
+            //         window.open(checkoutUrl, "_blank");
+            //     } else {
+            //         toast.error("Không thể tạo link thanh toán");
+            //     }
+            // } catch (error) {
+            //     console.error("❌ [Client] Lỗi khi gọi API thanh toán:", error);
+            //     toast.error("Lỗi khi gọi API thanh toán");
+            // }
+            if (response.success && response.data.checkoutUrl) {
+                window.open(response.data.checkoutUrl, "_blank");
+            } else {
+                toast.error("Không thể tạo link thanh toán");
+            }
+        } catch (error) {
+            console.error("❌ [Client] Lỗi khi gọi API thanh toán:", error);
+            toast.error("Lỗi khi gọi API thanh toán");
+        }
     };
 
     return (
