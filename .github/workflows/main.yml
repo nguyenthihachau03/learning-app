@@ -22,8 +22,13 @@ jobs:
 
       - name: Deploy to AWS EC2
         run: |
-          ssh -i ~/.ssh/aws_key.pem ubuntu@13.229.207.70 << 'EOF'
-            set -e  # Dừng ngay nếu có lỗi xảy ra
+          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
+            set -e
+            
+            echo "📄 Creating deployment script..."
+            cat <<'EOT' > /home/ubuntu/deploy.sh
+            #!/bin/bash
+            set -e
 
             echo "🔍 Kiểm tra quyền sudo..."
             if ! sudo -n true 2>/dev/null; then
@@ -61,7 +66,7 @@ jobs:
             npm install --force
 
             echo "📄 Writing .env file..."
-            cat <<EOT > .env
+            cat <<EOF_ENV > .env
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
             CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
             DATABASE_URL=${{ secrets.DATABASE_URL }}
@@ -70,7 +75,7 @@ jobs:
             PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }}
             PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }}
             NEXT_PUBLIC_PAYOS_CHECKOUT_URL=${{ secrets.NEXT_PUBLIC_PAYOS_CHECKOUT_URL }}
-            EOT
+            EOF_ENV
 
             echo "⚡ Building application..."
             npm run build
@@ -81,4 +86,9 @@ jobs:
             pm2 save
 
             echo "✅ Deployment completed!"
+            EOT
+
+            chmod +x /home/ubuntu/deploy.sh
+            echo "🚀 Running deployment script..."
+            /home/ubuntu/deploy.sh
           EOF
