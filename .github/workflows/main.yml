@@ -88,7 +88,7 @@ jobs:
 
             # Lưu trạng thái PM2
             pm2 save
-            pm2 startup systemd
-            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
+            # Thiết lập startup cho PM2 (bỏ qua lỗi nếu đã thiết lập)
+            pm2 startup systemd -u ubuntu --hp /home/ubuntu || true
             echo "🚀 Deployment completed!"
           EOF
