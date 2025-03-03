@@ -79,8 +79,6 @@ jobs:
             echo "✅ Restarting application with PM2..."
             # Xóa process cũ nếu có
             pm2 delete learning-app || true
-            # Kiểm tra nếu process đã tồn tại trước khi dừng
-            pm2 describe learning-app > /dev/null && pm2 stop learning-app || echo "Process not found, skipping stop step"
             pm2 start npm --name learning-app -- run start
             pm2 save
             pm2 startup systemd
