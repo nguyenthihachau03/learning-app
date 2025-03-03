@@ -29,6 +29,8 @@ jobs:
             git checkout production
             git pull origin production
 
+            cd ~/learning-app  # ✅ Đảm bảo đang ở thư mục đúng
+
             echo "📦 Installing dependencies..."
             npm install --force  # ✅ Cài đặt lại package
 
