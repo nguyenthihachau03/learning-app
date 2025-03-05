@@ -236,7 +236,15 @@ export async function getUserSubscription(userId: string) {
         orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
     });
 
-    return subscription && subscription.currentPeriodEnd > new Date()
-        ? { isActive: true, currentPeriodEnd: subscription.currentPeriodEnd }
-        : { isActive: false };
-};
+    if (!subscription || !subscription.currentPeriodEnd) { // ✅ Kiểm tra null trước
+        return { isActive: false };
+    }
+
+    // Kiểm tra subscription còn hạn không
+    const isActive = subscription.currentPeriodEnd > new Date();
+
+    return {
+        isActive,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+    };
+}

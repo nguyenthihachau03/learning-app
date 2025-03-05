@@ -25,9 +25,9 @@ export async function POST() {
     where: eq(userSubscriptionPayOS.userId, userId),
   });
 
-  if (existingSubscription && existingSubscription.currentPeriodEnd > new Date()) {
+  if (existingSubscription && existingSubscription.currentPeriodEnd && existingSubscription.currentPeriodEnd > new Date()) {
     return NextResponse.json({ success: false, error: "Bạn đã có gói Unlimited" });
-  }
+}
 
   const body = {
     orderCode: Date.now(),

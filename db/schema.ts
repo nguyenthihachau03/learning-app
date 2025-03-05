@@ -123,8 +123,9 @@ export const userSubscription = pgTable("user_subscription", {
 export const userSubscriptionPayOS = pgTable("user_subscription_payos", {
     id: serial("id").primaryKey(),
     userId: text("user_id").notNull().unique(),
-    transactionId: text("transaction_id").notNull().unique(), // Mã giao dịch PayOS
-    orderCode: text("order_code").notNull().unique(), // Mã đơn hàng PayOS
+    transactionId: text("transaction_id"), // ✅ Cho phép null ban đầu
+    orderCode: text("order_code").notNull().unique(),
     priceId: text("price_id").notNull(),
-    currentPeriodEnd: timestamp("current_period_end").notNull(), // Ngày hết hạn gói Pro
+    status: text("status").notNull().default("PENDING"),
+    currentPeriodEnd: timestamp("current_period_end"), // ✅ Cho phép null ban đầu
 });
