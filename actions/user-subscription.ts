@@ -20,7 +20,7 @@ export async function getUserSubscriptionPayOS() {
             orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
         });
 
-        if (!subscription) {
+        if (!subscription || !subscription.currentPeriodEnd) { // ✅ Kiểm tra null trước
             return { isActive: false };
         }
 
@@ -39,7 +39,7 @@ export async function getUserSubscriptionPayOS() {
 // ✅ Hàm cập nhật subscription sau khi thanh toán
 export async function checkAndUpdateSubscription(orderCode: string) {
     try {
-        // ✅ Gọi API PayOS để lấy trạng thái thanh toán
+        // 🔍 Gọi API PayOS để lấy trạng thái thanh toán
         const response = await fetch(`https://api.payos.vn/v2/payment/status?orderCode=${orderCode}`, {
             method: "GET",
             headers: {
@@ -58,7 +58,7 @@ export async function checkAndUpdateSubscription(orderCode: string) {
         }
 
         const transactionId = paymentStatus.data.transactionId;
-        const userId = paymentStatus.data.metadata?.userId; // ✅ Lấy userId từ metadata
+        const userId = paymentStatus.data.metadata?.userId;
 
         if (!userId) {
             console.error("❌ Lỗi: Không tìm thấy userId trong metadata");
@@ -67,18 +67,23 @@ export async function checkAndUpdateSubscription(orderCode: string) {
 
         console.log("✅ Thanh toán thành công! User:", userId, "Transaction ID:", transactionId);
 
-        // ✅ Cập nhật hoặc tạo mới subscription
+        // 📌 Xác định thời gian hết hạn subscription
+        const currentPeriodEnd = new Date();
+        currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + 1); // Gia hạn 1 tháng
+
+        // 🛠 Kiểm tra nếu subscription đã tồn tại
         const existingSubscription = await db.query.userSubscriptionPayOS.findFirst({
             where: eq(userSubscriptionPayOS.userId, userId),
         });
 
-        const currentPeriodEnd = new Date();
-        currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + 1); // Thêm 1 tháng
-
         if (existingSubscription) {
             console.log("🔄 Cập nhật subscription cho user:", userId);
             await db.update(userSubscriptionPayOS)
-                .set({ currentPeriodEnd })
+                .set({
+                    status: "PAID",
+                    currentPeriodEnd,
+                    transactionId
+                })
                 .where(eq(userSubscriptionPayOS.userId, userId));
         } else {
             console.log("🆕 Thêm subscription mới vào DB:", { userId, orderCode, transactionId });
@@ -87,6 +92,7 @@ export async function checkAndUpdateSubscription(orderCode: string) {
                 orderCode,
                 transactionId,
                 priceId: "UNLIMITED_HEARTS",
+                status: "PAID",
                 currentPeriodEnd,
             });
         }
