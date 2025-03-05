@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
         const { orderCode, status, transactionId } = payload;
 
-        // ✅ Kiểm tra `orderCode` trong DB
+        // ✅ Tìm userId từ database bằng orderCode
         const existingSubscription = await db.query.userSubscriptionPayOS.findFirst({
             where: eq(userSubscriptionPayOS.orderCode, orderCode),
         });
