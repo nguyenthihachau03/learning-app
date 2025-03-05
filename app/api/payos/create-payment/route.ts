@@ -51,8 +51,8 @@ export async function POST(req: Request) {
       amount,
       description,
       items: [{ name: "Nâng cấp tài khoản VIP", quantity: 1, price: amount }],
-      cancelUrl: absoluteUrl("/shop"),
-      returnUrl: absoluteUrl("/shop"),
+      cancelUrl: absoluteUrl("/"),
+      returnUrl: absoluteUrl("/"),
       embedded: false, // Không dùng iframe
     };
 
