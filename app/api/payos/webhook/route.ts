@@ -10,13 +10,13 @@ export async function POST(req: Request) {
 
         const { orderCode, status, transactionId } = payload;
 
-        // ✅ Tìm userId từ database bằng orderCode
+        // ✅ Kiểm tra `orderCode` trong DB
         const existingSubscription = await db.query.userSubscriptionPayOS.findFirst({
             where: eq(userSubscriptionPayOS.orderCode, orderCode),
         });
 
         if (!existingSubscription) {
-            console.error("❌ Không tìm thấy orderCode trong database!");
+            console.error("❌ Không tìm thấy orderCode trong database! Có thể chưa được lưu trước khi webhook gọi?");
             return NextResponse.json({ success: false, error: "Order không tồn tại" }, { status: 400 });
         }
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
                     currentPeriodEnd: currentPeriodEnd, // ✅ Cập nhật ngày hết hạn
                     transactionId: transactionId ?? "UNKNOWN", // ✅ Xử lý nếu `transactionId` bị `null`
                 })
-                .where(eq(userSubscriptionPayOS.userId, userId));
+                .where(eq(userSubscriptionPayOS.orderCode, orderCode)); // ✅ Update theo `orderCode`
 
             console.log("✅ Subscription đã cập nhật thành công!");
             return NextResponse.json({ success: true });
