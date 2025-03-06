@@ -1,9 +1,8 @@
 import { cache } from "react";
 import db from "@/db/drizzle";
 import { auth } from "@clerk/nextjs/server";
-import { challengeProgress, challenges, courses, lessons, units, userProgress, userSubscription } from "@/db/schema";
+import { challengeProgress, challenges, courses, lessons, units, userProgress, userSubscriptionPayOS } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { userSubscriptionPayOS } from "@/db/schema";
 
 export const getUserProgress = cache(async () => {
     const { userId } = await auth();
@@ -30,13 +29,15 @@ export const getUnits = cache(async () => {
         return [];
     }
 
-    //TODO: confirm whether order is needed
     const data = await db.query.units.findMany({
+        orderBy: (units, { asc }) => [asc(units.order)],
         where: eq(units.courseId, userProgress.activeCourseId),
         with: {
             lessons: {
+                orderBy: (lessons, { asc }) => [asc(lessons.order)],
                 with: {
                     challenges: {
+                        orderBy: (challenges, { asc }) => [asc(challenges.order)],
                         with: {
                             challengeProgress: {
                                 where: eq(
@@ -109,7 +110,16 @@ export const getCourses = cache(async () => {
 export const getCourseById = cache(async (courseId: number) => {
     const data = await db.query.courses.findFirst({
         where: eq(courses.id, courseId),
-        // TODO: populate lessons and units
+        with: {
+            units: {
+                orderBy: (units, { asc }) => [asc(units.order)],
+                with: {
+                    lessons: {
+                        orderBy: (lessons, { asc }) => [asc(lessons.order)],
+                    },
+                },
+            },
+        },
     });
 
     return data;
@@ -146,7 +156,6 @@ export const getCourseProgress = cache(async () => {
     const firstUncompletedLesson = unitsInActiveCourse
         .flatMap((unit) => unit.lessons)
         .find((lesson) => {
-            //TODO: if smt does not work, check the last if clause
             return lesson.challenges.some((challenge) => {
                 return !challenge.challengeProgress
                     || challenge.challengeProgress.length === 0
@@ -195,7 +204,6 @@ export const getLesson = cache(async (id?: number) => {
     }
 
     const normalizedChallenges = data.challenges.map((challenge) => {
-        //TODO: if smt does not work, check the last if clause
         const completed = challenge.challengeProgress
             && challenge.challengeProgress.length > 0
             && challenge.challengeProgress.every((progress) => progress.completed);
@@ -230,21 +238,44 @@ export const getLessonPercentage = cache(async () => {
     return percentage;
 });
 
-export async function getUserSubscription(userId: string) {
-    const subscription = await db.query.userSubscriptionPayOS.findFirst({
+// export async function getUserSubscription(userId: string) {
+//     const subscription = await db.query.userSubscriptionPayOS.findFirst({
+//         where: eq(userSubscriptionPayOS.userId, userId),
+//         orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
+//     });
+
+//     if (!subscription || !subscription.currentPeriodEnd) { // ✅ Kiểm tra null trước
+//         return { isActive: false };
+//     }
+
+//     // Kiểm tra subscription còn hạn không
+//     const isActive = subscription.currentPeriodEnd > new Date();
+
+//     return {
+//         isActive,
+//         currentPeriodEnd: subscription.currentPeriodEnd,
+//     };
+// }
+
+const DAY_IN_MS = 86_400_000;
+
+export const getUserSubscription = cache(async () => {
+    const { userId } = await auth();
+
+    if (!userId) return null;
+
+    const data = await db.query.userSubscriptionPayOS.findFirst({
         where: eq(userSubscriptionPayOS.userId, userId),
-        orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
     });
 
-    if (!subscription || !subscription.currentPeriodEnd) { // ✅ Kiểm tra null trước
-        return { isActive: false };
-    }
+    if (!data) return null;
 
-    // Kiểm tra subscription còn hạn không
-    const isActive = subscription.currentPeriodEnd > new Date();
+    const isActive =
+        data.orderCode &&
+        (data.currentPeriodEnd?.getTime() ?? 0) + DAY_IN_MS > Date.now(); //?? 0 dam bao gia tri hop le
 
     return {
-        isActive,
-        currentPeriodEnd: subscription.currentPeriodEnd,
+        ...data,
+        isActive: !!isActive,
     };
-}
+});

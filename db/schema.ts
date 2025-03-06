@@ -83,7 +83,7 @@ export const challengeOptionsRelations = relations(challengeOptions, ({ one }) =
 
 export const challengeProgress = pgTable("challenge_progress", {
     id: serial("id").primaryKey(),
-    userId: text("user_id").notNull(), //TODO: confirm this doesn't break
+    userId: text("user_id").notNull(),
     challengeId: integer("challenge_id").references(() => challenges.id, { onDelete: "cascade" }).notNull(),
     completed: boolean("completed").notNull().default(false),
 });
@@ -111,14 +111,6 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
     }),
 }));
 
-export const userSubscription = pgTable("user_subscription", {
-    id: serial("id").primaryKey(),
-    userId: text("user_id").notNull().unique(),
-    stripeCustomerId: text("stripe_customer_id").notNull().unique(), //stripe_customer_id
-    stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(), //stripe_subscription_id
-    stripePriceId: text("stripe_price_id").notNull(), //stripe_price_id
-    stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(), //stripe_current_period_end
-});
 
 export const userSubscriptionPayOS = pgTable("user_subscription_payos", {
     id: serial("id").primaryKey(),

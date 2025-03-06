@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getLesson, getUserProgress } from "@/db/queries";
+import { getLesson, getUserProgress, getUserSubscription } from "@/db/queries";
 import { Quiz } from "../quiz";
 
 type Props = {
@@ -10,16 +10,17 @@ const LessonIdPage = async ({ params }: Props) => {
     // ✅ Chờ params được resolve trước khi sử dụng
     const resolvedParams = await params;
     const lessonId = Number(resolvedParams.lessonId);
-
+    const userSubcriptionData = getUserSubscription();
     // ✅ Kiểm tra nếu lessonId không hợp lệ thì chuyển hướng
     if (isNaN(lessonId) || lessonId <= 0) {
         redirect("/learn");
     }
 
     // ✅ Gọi dữ liệu từ database
-    const [lesson, userProgress] = await Promise.all([
+    const [lesson, userProgress, userSubcription] = await Promise.all([
         getLesson(lessonId),
         getUserProgress(),
+        userSubcriptionData,
     ]);
 
     // ✅ Nếu không tìm thấy lesson hoặc userProgress, chuyển hướng
@@ -39,7 +40,7 @@ const LessonIdPage = async ({ params }: Props) => {
             initialLessonChallenges={lesson.challenges}
             initialHearts={userProgress.hearts}
             initialPercentage={initialPercentage}
-            userSubcription={null} // TODO: Thêm thông tin subscription của user nếu có
+            userSubcription={userSubcription}
         />
     );
 };
