@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
+
 import { getUserSubscriptionPayOS } from "@/actions/user-subscription";
+import { Promo } from "@/components/promo";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { StickyWrapper } from "@/components/sticky-wrapper";
@@ -32,6 +34,7 @@ const ShopPage = async () => {
             points={userProgress.points}
             hasActiveSubscription={isPro}
           />
+          {!isPro && (<Promo />)}
         </StickyWrapper>
         <FeedWrapper>
           <div className="w-full flex flex-col items-center">
