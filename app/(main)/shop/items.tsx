@@ -6,10 +6,11 @@ import Image from "next/image";
 import { useState, useEffect, useTransition } from "react"; // ✅ Đã thêm useState
 
 import { Button } from "@/components/ui/button";
+import { POINTS_TO_REFILL } from "@/constant";
 import { refillHearts } from "@/actions/user-progress";
 import { checkAndUpdateSubscription } from "@/actions/user-subscription"; // ✅ Import action server
 
-const POINT_TO_REFILL = 10; //export de reuse o file khac
+// const POINT_TO_REFILL = 10; //export de reuse o file khac
 
 type Props = {
     hearts: number;
@@ -27,7 +28,7 @@ export const Items = ({ hearts, points, hasActiveSubscription }: Props) => {
     const [pending, startTransition] = useTransition();
 
     const onRefillHearts = () => {
-        if (pending || hearts === 5 || points < POINT_TO_REFILL) {
+        if (pending || hearts === 5 || points < POINTS_TO_REFILL) {
             return;
         }
 
@@ -126,7 +127,7 @@ export const Items = ({ hearts, points, hasActiveSubscription }: Props) => {
                 </div>
                 <Button
                     onClick={onRefillHearts}
-                    disabled={pending || hearts === 5 || points < POINT_TO_REFILL}
+                    disabled={pending || hearts === 5 || points < POINTS_TO_REFILL}
                 >
                     {hearts === 5
                         ? "full"
@@ -139,7 +140,7 @@ export const Items = ({ hearts, points, hasActiveSubscription }: Props) => {
                                     width={20}
                                 />
                                 <p>
-                                    {POINT_TO_REFILL}
+                                    {POINTS_TO_REFILL}
                                 </p>
                             </div>
                         )

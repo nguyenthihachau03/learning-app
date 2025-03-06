@@ -6,41 +6,12 @@ import { userSubscriptionPayOS } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache"; // ✅ Import
 
-// ✅ Hàm kiểm tra trạng thái subscription
-// export async function getUserSubscriptionPayOS() {
-//     try {
-//         const { userId } = await auth();
-//         if (!userId) {
-//             return { isActive: false, error: "Unauthorized" };
-//         }
-
-//         // Lấy thông tin subscription mới nhất
-//         const subscription = await db.query.userSubscriptionPayOS.findFirst({
-//             where: eq(userSubscriptionPayOS.userId, userId),
-//             orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
-//         });
-
-//         if (!subscription || !subscription.currentPeriodEnd) { // ✅ Kiểm tra null trước
-//             return { isActive: false };
-//         }
-
-//         // Kiểm tra subscription còn hạn không
-//         const isActive = subscription.currentPeriodEnd > new Date();
-
-//         return {
-//             isActive,
-//             currentPeriodEnd: subscription.currentPeriodEnd,
-//         };
-//     } catch (error: any) {
-//         return { isActive: false, error: error.message };
-//     }
-// }
-
 export async function getUserSubscriptionPayOS() {
     try {
         const { userId } = await auth();
         if (!userId) {
-            return { isActive: false, error: "Unauthorized" };
+            // return { isActive: false, error: "Unauthorized" };
+            return null; // ✅ Trả về null thay vì object không hợp lệ
         }
 
         // Lấy thông tin subscription mới nhất (có status = "PAID")
@@ -50,18 +21,26 @@ export async function getUserSubscriptionPayOS() {
         });
 
         if (!subscription || !subscription.currentPeriodEnd || subscription.status !== "PAID") {
-            return { isActive: false };
+            // return { isActive: false };
+            return null; // ✅ Trả về null thay vì object không hợp lệ
         }
 
         // Kiểm tra subscription còn hạn sử dụng không
         const isActive = subscription.currentPeriodEnd > new Date();
 
         return {
-            isActive,
+            id: subscription.id,
+            userId: subscription.userId,
+            orderCode: subscription.orderCode,
+            priceId: subscription.priceId,
+            status: subscription.status,
             currentPeriodEnd: subscription.currentPeriodEnd,
+            isActive,
         };
     } catch (error: any) {
-        return { isActive: false, error: error.message };
+        // return { isActive: false, error: error.message };
+        console.error("❌ Lỗi khi lấy subscription:", error);
+        return null; // ✅ Trả về null thay vì object có `error`
     }
 }
 

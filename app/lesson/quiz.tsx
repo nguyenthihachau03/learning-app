@@ -9,7 +9,7 @@ import { useAudio, useWindowSize, useMount } from "react-use";
 
 import { reduceHearts } from "@/actions/user-progress";
 import { useHeartsModal } from "@/store/use-hearts-modal";
-import { challengeOptions, challenges } from "@/db/schema"
+import { challengeOptions, challenges, userSubscriptionPayOS } from "@/db/schema"
 import { usePracticeModal } from "@/store/use-practice-modal";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 
@@ -27,7 +27,9 @@ type Props = {
         completed: boolean,
         challengeOptions: typeof challengeOptions.$inferSelect[];
     })[],
-    userSubcription: any; //TODO: replace with subscription DB type
+    userSubcription: typeof userSubscriptionPayOS.$inferSelect & {
+        isActive: boolean;
+    } | null;
 };
 
 export const Quiz = ({
