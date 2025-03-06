@@ -7,6 +7,35 @@ import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache"; // ✅ Import
 
 // ✅ Hàm kiểm tra trạng thái subscription
+// export async function getUserSubscriptionPayOS() {
+//     try {
+//         const { userId } = await auth();
+//         if (!userId) {
+//             return { isActive: false, error: "Unauthorized" };
+//         }
+
+//         // Lấy thông tin subscription mới nhất
+//         const subscription = await db.query.userSubscriptionPayOS.findFirst({
+//             where: eq(userSubscriptionPayOS.userId, userId),
+//             orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
+//         });
+
+//         if (!subscription || !subscription.currentPeriodEnd) { // ✅ Kiểm tra null trước
+//             return { isActive: false };
+//         }
+
+//         // Kiểm tra subscription còn hạn không
+//         const isActive = subscription.currentPeriodEnd > new Date();
+
+//         return {
+//             isActive,
+//             currentPeriodEnd: subscription.currentPeriodEnd,
+//         };
+//     } catch (error: any) {
+//         return { isActive: false, error: error.message };
+//     }
+// }
+
 export async function getUserSubscriptionPayOS() {
     try {
         const { userId } = await auth();
@@ -14,17 +43,17 @@ export async function getUserSubscriptionPayOS() {
             return { isActive: false, error: "Unauthorized" };
         }
 
-        // Lấy thông tin subscription mới nhất
+        // Lấy thông tin subscription mới nhất (có status = "PAID")
         const subscription = await db.query.userSubscriptionPayOS.findFirst({
             where: eq(userSubscriptionPayOS.userId, userId),
             orderBy: desc(userSubscriptionPayOS.currentPeriodEnd),
         });
 
-        if (!subscription || !subscription.currentPeriodEnd) { // ✅ Kiểm tra null trước
+        if (!subscription || !subscription.currentPeriodEnd || subscription.status !== "PAID") {
             return { isActive: false };
         }
 
-        // Kiểm tra subscription còn hạn không
+        // Kiểm tra subscription còn hạn sử dụng không
         const isActive = subscription.currentPeriodEnd > new Date();
 
         return {
@@ -82,7 +111,6 @@ export async function checkAndUpdateSubscription(orderCode: string) {
                 .set({
                     status: "PAID",
                     currentPeriodEnd,
-                    transactionId
                 })
                 .where(eq(userSubscriptionPayOS.userId, userId));
         } else {
@@ -90,7 +118,6 @@ export async function checkAndUpdateSubscription(orderCode: string) {
             await db.insert(userSubscriptionPayOS).values({
                 userId,
                 orderCode,
-                transactionId,
                 priceId: "UNLIMITED_HEARTS",
                 status: "PAID",
                 currentPeriodEnd,
@@ -109,3 +136,27 @@ export async function checkAndUpdateSubscription(orderCode: string) {
         return { success: false, error: error.message };
     }
 }
+
+// ✅ Hàm cập nhật trạng thái thanh toán dựa vào orderCode
+export async function checkStatus(orderCode: string, status: string) {
+    try {
+      if (status === "PAID") {
+        console.log(`🔄 Đang cập nhật trạng thái thanh toán cho order: ${orderCode}`);
+
+        await db.update(userSubscriptionPayOS)
+          .set({
+            status: "PAID",
+          })
+          .where(eq(userSubscriptionPayOS.orderCode, orderCode));
+
+        console.log("✅ Trạng thái đã cập nhật thành PAID!");
+        return { success: true };
+      } else {
+        console.warn("⚠️ Thanh toán không thành công, không cập nhật.");
+        return { success: false, error: "Thanh toán không thành công." };
+      }
+    } catch (error: any) {
+      console.error("❌ Lỗi khi cập nhật trạng thái:", error);
+      return { success: false, error: error.message };
+    }
+  }

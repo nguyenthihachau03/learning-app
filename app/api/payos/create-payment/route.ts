@@ -24,7 +24,12 @@ export async function POST(req: Request) {
 
     console.log("📌 [API] Nhận request tạo thanh toán:", { userId, orderCode, amount, description });
 
-    // ✅ Kiểm tra xem user đã có bản ghi subscription chưa
+    // ✅ Tính toán ngày hết hạn ngay khi tạo đơn hàng
+    const currentPeriodEnd = new Date();
+    currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + 1);
+    console.log("📅 Thời gian hết hạn mặc định:", currentPeriodEnd.toISOString());
+
+    // ✅ Kiểm tra xem user đã có subscription hay chưa
     const existingSubscription = await db.query.userSubscriptionPayOS.findFirst({
       where: eq(userSubscriptionPayOS.userId, userId),
     });
@@ -32,17 +37,16 @@ export async function POST(req: Request) {
     if (existingSubscription) {
       console.log("🔄 User đã có subscription, cập nhật orderCode...");
       await db.update(userSubscriptionPayOS)
-        .set({ orderCode, status: "PENDING" }) // ✅ Cập nhật trạng thái thanh toán
+        .set({ orderCode, status: "PENDING", currentPeriodEnd }) // ✅ Cập nhật orderCode và thời gian hết hạn
         .where(eq(userSubscriptionPayOS.userId, userId));
     } else {
       console.log("🆕 Tạo subscription mới...");
       await db.insert(userSubscriptionPayOS).values({
         userId,
         orderCode,
-        status: "PENDING", // Chưa thanh toán
+        status: "PENDING",
         priceId: "UNLIMITED_HEARTS",
-        transactionId: null, // ✅ Để trống vì chưa có giao dịch
-        currentPeriodEnd: null, // ✅ Để trống vì chưa có hạn sử dụng
+        currentPeriodEnd, // ✅ Lưu luôn ngày hết hạn ngay từ đầu
       });
     }
 
@@ -51,9 +55,9 @@ export async function POST(req: Request) {
       amount,
       description,
       items: [{ name: "Nâng cấp tài khoản VIP", quantity: 1, price: amount }],
-      cancelUrl: absoluteUrl("/"),
-      returnUrl: absoluteUrl("/"),
-      embedded: false, // Không dùng iframe
+      cancelUrl: absoluteUrl("/shop"),
+      returnUrl: absoluteUrl("/shop"),
+      embedded: false,
     };
 
     console.log("🚀 [API] Gửi request đến PayOS:", body);
