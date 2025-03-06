@@ -123,7 +123,6 @@ export const userSubscription = pgTable("user_subscription", {
 export const userSubscriptionPayOS = pgTable("user_subscription_payos", {
     id: serial("id").primaryKey(),
     userId: text("user_id").notNull().unique(),
-    transactionId: text("transaction_id"), // ✅ Cho phép null ban đầu
     orderCode: text("order_code").notNull().unique(),
     priceId: text("price_id").notNull(),
     status: text("status").notNull().default("PENDING"),
