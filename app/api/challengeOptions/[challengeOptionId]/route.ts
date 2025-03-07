@@ -13,7 +13,7 @@ export const GET = async (
     return new NextResponse("Missing challengeOptionId.", { status: 400 });
   }
 
-  const parsedId = Number(params.challengeOptionId); // ✅ Không cần `await` lần nữa
+  const parsedId = Number(params.challengeOptionId);
   if (isNaN(parsedId)) {
     return new NextResponse("Invalid ID format.", { status: 400 });
   }
