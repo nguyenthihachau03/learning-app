@@ -1,0 +1,44 @@
+name: Learning App Deployment
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key and Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/aws_key.pem
+          chmod 600 ~/.ssh/aws_key.pem
+          ssh-keyscan -H ${{ secrets.AWS_EC2_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy build to AWS EC2
+        run: |
+          scp -i ~/.ssh/aws_key.pem next-build.tar.gz ubuntu@${{ secrets.AWS_EC2_IP }}:/home/ubuntu/learning-app
+
+      - name: Deploy and Restart App on AWS EC2
+        run: |
+          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
+            set -e
+            echo "✅ Kiểm tra thư mục project..."
+            cd /home/ubuntu/learning-app
+
+            echo "✅ Giải nén file build..."
+            tar -xzvf next-build.tar.gz
+
+            echo "✅ Restarting application with PM2..."
+            pm2 stop learning-app || true
+            pm2 delete learning-app || true
+            pm2 start npm --name learning-app -- start
+            pm2 save
+
+            echo "🚀 Deployment completed!"
+          EOF
