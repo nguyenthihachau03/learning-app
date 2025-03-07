@@ -5,10 +5,8 @@ import db from "@/db/drizzle";
 import { lessons } from "@/db/schema";
 import { getIsAdmin } from "@/lib/admin";
 
-export const GET = async (
-  _req: NextRequest,
-  { params }: { params: { lessonId: number } }
-) => {
+export const GET = async (_req: NextRequest, props: { params: Promise<{ lessonId: number }> }) => {
+  const params = await props.params;
   const isAdmin = getIsAdmin();
   if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
 
@@ -19,10 +17,8 @@ export const GET = async (
   return NextResponse.json(data);
 };
 
-export const PUT = async (
-  req: NextRequest,
-  { params }: { params: { lessonId: number } }
-) => {
+export const PUT = async (req: NextRequest, props: { params: Promise<{ lessonId: number }> }) => {
+  const params = await props.params;
   const isAdmin = getIsAdmin();
   if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
 
@@ -38,10 +34,8 @@ export const PUT = async (
   return NextResponse.json(data[0]);
 };
 
-export const DELETE = async (
-  _req: NextRequest,
-  { params }: { params: { lessonId: number } }
-) => {
+export const DELETE = async (_req: NextRequest, props: { params: Promise<{ lessonId: number }> }) => {
+  const params = await props.params;
   const isAdmin = getIsAdmin();
   if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
 

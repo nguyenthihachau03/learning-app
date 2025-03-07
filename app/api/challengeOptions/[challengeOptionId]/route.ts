@@ -6,13 +6,14 @@ import { getIsAdmin } from "@/lib/admin";
 
 export const GET = async (
   req: NextRequest,
-  context: { params?: { challengeOptionId?: string } } // ✅ Cập nhật kiểu dữ liệu
+  context: { params?: Promise<{ challengeOptionId?: string }> }
 ) => {
-  if (!context.params?.challengeOptionId) {
+  const params = await context.params; // ✅ Giải quyết Promise một lần
+  if (!params || !params.challengeOptionId) {
     return new NextResponse("Missing challengeOptionId.", { status: 400 });
   }
 
-  const parsedId = Number(context.params.challengeOptionId);
+  const parsedId = Number(params.challengeOptionId); // ✅ Không cần `await` lần nữa
   if (isNaN(parsedId)) {
     return new NextResponse("Invalid ID format.", { status: 400 });
   }
@@ -33,13 +34,14 @@ export const GET = async (
 
 export const PUT = async (
   req: NextRequest,
-  context: { params?: { challengeOptionId?: string } }
+  context: { params?: Promise<{ challengeOptionId?: string }> }
 ) => {
-  if (!context.params?.challengeOptionId) {
+  const params = await context.params; // ✅ Giải quyết Promise một lần
+  if (!params || !params.challengeOptionId) {
     return new NextResponse("Missing challengeOptionId.", { status: 400 });
   }
 
-  const parsedId = Number(context.params.challengeOptionId);
+  const parsedId = Number(params.challengeOptionId);
   if (isNaN(parsedId)) {
     return new NextResponse("Invalid ID format.", { status: 400 });
   }
@@ -74,13 +76,14 @@ export const PUT = async (
 
 export const DELETE = async (
   req: NextRequest,
-  context: { params?: { challengeOptionId?: string } }
+  context: { params?: Promise<{ challengeOptionId?: string }> }
 ) => {
-  if (!context.params?.challengeOptionId) {
+  const params = await context.params; // ✅ Giải quyết Promise một lần
+  if (!params || !params.challengeOptionId) {
     return new NextResponse("Missing challengeOptionId.", { status: 400 });
   }
 
-  const parsedId = Number(context.params.challengeOptionId);
+  const parsedId = Number(params.challengeOptionId);
   if (isNaN(parsedId)) {
     return new NextResponse("Invalid ID format.", { status: 400 });
   }
