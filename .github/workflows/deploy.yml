@@ -17,27 +17,27 @@ jobs:
           chmod 600 ~/.ssh/aws_key.pem
           ssh-keyscan -H ${{ secrets.AWS_EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to AWS EC2 and Restart App
+      - name: Download and extract build from GitHub Release
         run: |
           ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
             set -e  # Dừng ngay nếu có lỗi
-
+            echo "✅ Chuyển đến thư mục ứng dụng..."
             cd /home/ubuntu/learning-app
 
-            echo "✅ Downloading build from GitHub Releases..."
-            wget -O next-build.tar.gz https://github.com/nguyenthihachau03/learning-app/releases/download/v1.0.0/next-build.tar.gz
+            echo "✅ Tải file build từ GitHub Release..."
+            curl -L -o next-build.tar.gz https://github.com/nguyenthihachau03/learning-app/releases/download/v1.0.0/next-build.tar.gz
 
-            echo "✅ Extracting build..."
-            tar -xzvf next-build.tar.gz
+            echo "✅ Giải nén file build..."
+            tar -xzf next-build.tar.gz
 
-            echo "✅ Installing dependencies..."
-            npm install --production
+            echo "✅ Cài đặt dependencies..."
+            npm install --production --force
 
             echo "✅ Restarting application with PM2..."
             pm2 stop learning-app || true
             pm2 delete learning-app || true
             pm2 start npm --name learning-app -- run start
-            pm2 save
 
+            pm2 save
             echo "🚀 Deployment completed!"
           EOF
