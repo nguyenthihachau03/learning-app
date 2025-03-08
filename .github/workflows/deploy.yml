@@ -3,16 +3,13 @@ name: Learning App Deployment
 on:
   push:
     branches:
-      - production
+      - production  # Chạy khi push vào branch production
 
 jobs:
   deployment:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Chạy trên GitHub Actions Ubuntu
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Setup SSH Key and Known Hosts
         run: |
           mkdir -p ~/.ssh
@@ -20,24 +17,26 @@ jobs:
           chmod 600 ~/.ssh/aws_key.pem
           ssh-keyscan -H ${{ secrets.AWS_EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy build to AWS EC2
-        run: |
-          scp -i ~/.ssh/aws_key.pem next-build.tar.gz ubuntu@${{ secrets.AWS_EC2_IP }}:/home/ubuntu/learning-app
-
-      - name: Deploy and Restart App on AWS EC2
+      - name: Deploy to AWS EC2 and Restart App
         run: |
           ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
-            set -e
-            echo "✅ Kiểm tra thư mục project..."
+            set -e  # Dừng ngay nếu có lỗi
+
             cd /home/ubuntu/learning-app
 
-            echo "✅ Giải nén file build..."
+            echo "✅ Downloading build from GitHub Releases..."
+            wget -O next-build.tar.gz https://github.com/nguyenthihachau03/learning-app/releases/download/v1.0.0/next-build.tar.gz
+
+            echo "✅ Extracting build..."
             tar -xzvf next-build.tar.gz
+
+            echo "✅ Installing dependencies..."
+            npm install --production
 
             echo "✅ Restarting application with PM2..."
             pm2 stop learning-app || true
             pm2 delete learning-app || true
-            pm2 start npm --name learning-app -- start
+            pm2 start npm --name learning-app -- run start
             pm2 save
 
             echo "🚀 Deployment completed!"
