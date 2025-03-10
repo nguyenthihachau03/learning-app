@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - production  # Chạy khi push vào branch production
+  release:
+    types: [published]  # Chạy khi có release mới
 
 jobs:
   deployment:
@@ -17,15 +19,21 @@ jobs:
           chmod 600 ~/.ssh/aws_key.pem
           ssh-keyscan -H ${{ secrets.AWS_EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Download and extract build from GitHub Release
+      - name: Get latest release tag
+        id: get_latest_release
         run: |
-          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/nguyenthihachau03/learning-app/releases/latest | jq -r .tag_name)
+          echo "LATEST_RELEASE=$LATEST_RELEASE" >> $GITHUB_ENV
+
+      - name: Deploy to AWS EC2
+        run: |
+          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << EOF
             set -e  # Dừng ngay nếu có lỗi
             echo "✅ Chuyển đến thư mục ứng dụng..."
             cd /home/ubuntu/learning-app
 
-            echo "✅ Tải file build từ GitHub Release..."
-            curl -L -o next-build.tar.gz https://github.com/nguyenthihachau03/learning-app/releases/download/v1.0.0/next-build.tar.gz
+            echo "✅ Tải file build từ GitHub Release mới nhất ($LATEST_RELEASE)..."
+            curl -L -o next-build.tar.gz https://github.com/nguyenthihachau03/learning-app/releases/download/$LATEST_RELEASE/next-build.tar.gz
 
             echo "✅ Giải nén file build..."
             tar -xzf next-build.tar.gz
