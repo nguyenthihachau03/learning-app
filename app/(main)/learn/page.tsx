@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { redirect } from "next/navigation";
 
 import { lessons, units as unitsSchema } from "@/db/schema";

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'; //trang này phải SSR (tạo trên server mỗi lần request) fetch cac du lieu động tu getcourseprogress, getuseprogress, getlesson từ dâtbase
 import { redirect } from "next/navigation";
 import { getLesson, getUserProgress } from "@/db/queries";
 import { Quiz } from "./quiz";

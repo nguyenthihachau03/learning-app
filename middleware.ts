@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher(['/admin(.*)', "/api/webhooks"]);
+const isProtectedRoute = createRouteMatcher(['/pageadmin(.*)', "/api/webhooks"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl.pathname;
 
   // 🚀 Bỏ qua Clerk Middleware cho tất cả API `/api/payos/*`
-  if (url.startsWith('/api/payos/')) {
+  if (url.startsWith('/api')) {
     return NextResponse.next(); // Cho phép request mà không cần auth
   }
 
