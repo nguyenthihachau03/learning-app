@@ -22,8 +22,14 @@ export const Challenge = ({
     return (
         <div className={cn(
             "grid gap-2",
+            // type === "ASSIST" && "grid-cols-1",
+            // type === "SELECT" && "grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]"
             type === "ASSIST" && "grid-cols-1",
-            type === "SELECT" && "grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]"
+            type === "SELECT" && "grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]",
+            type === "IMAGE" && "grid-cols-2 gap-4", // Hiển thị dạng hình ảnh theo chiều dọc
+            type === "AUDIO" && "grid-cols-2 gap-4", // Hiển thị dạng âm thanh theo chiều dọc
+            type === "FILL_IN_BLANK" && "grid-cols-1" // Hiển thị dạng điền từ theo chiều dọc
+
         )}>
             {options.map((option, i) => (
                 // <div>
@@ -36,7 +42,7 @@ export const Challenge = ({
                     imageSrc={option.imageSrc}
                     shortcut={`${i + 1}`}
                     selected={selectedOption === option.id}
-                    onClick={()=>onSelect(option.id)}
+                    onClick={() => onSelect(option.id)}
                     status={status}
                     audioSrc={option.audioSrc}
                     disable={disable}

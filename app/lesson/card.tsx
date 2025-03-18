@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useCallback } from "react";
-import {useAudio, useKey} from "react-use";
+import { useAudio, useKey } from "react-use";
 
 import { challenges } from "@/db/schema";
 import Image from "next/image";
@@ -33,7 +33,7 @@ export const Card = ({
     const [audio, _, controls] = useAudio({ src: audioSrc || "" });
 
     const handleClick = useCallback(() => {
-        if(disable) return;
+        if (disable) return;
 
         controls.play();
         onClick();
@@ -64,8 +64,44 @@ export const Card = ({
                     />
                 </div>
             )}
-            <div className={cn(
+            {/* <div className={cn(
                 "flex items-center justify-between",
+                type === "ASSIST" && "flex-row-reverse",
+            )}>
+                {type === "ASSIST" && <div />}
+                <p className={cn(
+                    "text-neutral-600 text-sm lg:text-base",
+                    selected && "text-sky-500",
+                    selected && status === "correct" && "text-green-500",
+                    selected && status === "wrong" && "text-rose-500",
+                )}>
+                    {text}
+                </p>
+                <div className={cn(
+                    "lg:w-[30px] lg:h-[30px] w-[20px] h-[20px] border-2 flex items-center justify-center rounded-lg text-neutral-400 lg:text-[15px] text-xs font-semibold",
+                    selected && "border-sky-300 text-sky-500",
+                    selected && status === "correct" && "border-green-500 text-green-500",
+                    selected && status === "wrong" && "border-rose-500 text-rose-500",
+                )}>
+                    {shortcut}
+                </div>
+            </div> */}
+            {/* Hiển thị hình ảnh nếu là câu hỏi IMAGE */}
+            {/* {type === "IMAGE" && imageSrc && (
+                <div className="relative w-full h-[150px] mb-4">
+                    <Image
+                        src={imageSrc}
+                        alt={text}
+                        layout="fill"
+                        objectFit="contain"
+                        className="rounded-lg"
+                    />
+                </div>
+            )} */}
+
+                    {/* Hiển thị văn bản bình thường */}
+            <div className={cn(
+                "flex items-center justify-between mt-2",
                 type === "ASSIST" && "flex-row-reverse",
             )}>
                 {type === "ASSIST" && <div />}

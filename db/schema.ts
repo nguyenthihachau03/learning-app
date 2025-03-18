@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const courses = pgTable("courses", {
     id: serial("id").primaryKey(),
@@ -46,22 +46,42 @@ export const lessonsRelations = relations(lessons, ({ one, many }) => ({
 
 export const challengesEnum = pgEnum("type", ["SELECT", "ASSIST"]);
 
+// export const challenges = pgTable("challenges", {
+//     id: serial("id").primaryKey(),
+//     lessonId: integer("lesson_id").references(() => lessons.id, { onDelete: "cascade" }).notNull(),
+//     type: challengesEnum("type").notNull(),
+//     question: text("question").notNull(),
+//     order: integer("order").notNull(),
+// });
+
 export const challenges = pgTable("challenges", {
     id: serial("id").primaryKey(),
     lessonId: integer("lesson_id").references(() => lessons.id, { onDelete: "cascade" }).notNull(),
-    type: challengesEnum("type").notNull(),
+    type: varchar("type", { length: 50 }).notNull(), // "assist", "select", "image", "audio", "fill-in-the-blank"
     question: text("question").notNull(),
+    imageUrl: text("image_url"), // Hình ảnh cho câu hỏi dạng image
+    audioUrl: text("audio_url"), // Âm thanh cho câu hỏi dạng audio
+    correctAnswer: text("correct_answer"), // Đáp án đúng nếu là dạng điền từ
     order: integer("order").notNull(),
 });
+
+// export const challengesRelations = relations(challenges, ({ one, many }) => ({
+//     lesson: one(lessons, {
+//         fields: [challenges.lessonId],
+//         references: [lessons.id],
+//     }),
+
+//     challengeOptions: many(challengeOptions),
+
+//     challengeProgress: many(challengeProgress),
+// }));
 
 export const challengesRelations = relations(challenges, ({ one, many }) => ({
     lesson: one(lessons, {
         fields: [challenges.lessonId],
         references: [lessons.id],
     }),
-
     challengeOptions: many(challengeOptions),
-
     challengeProgress: many(challengeProgress),
 }));
 
