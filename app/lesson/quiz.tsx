@@ -19,6 +19,7 @@ import { Challenge } from "./challenge";
 import { ResultCard } from "./result-card";
 import { QuestionBubble } from "./question-bubble";
 import { GameBubble } from "./game-bubble";
+import MicrophoneComponent from "./voice-bubble";
 
 type Props = {
     initialPercentage: number,
@@ -387,6 +388,8 @@ export const Quiz = ({
                             </div>
                         )}
 
+
+
                         <div>
                             {/* Nếu là ASSIST thì hiển thị QuestionBubble */}
                             {challenge.type === "ASSIST" && (
@@ -401,6 +404,40 @@ export const Quiz = ({
                                         answer2: g.answer2
                                     }))}
                                     onAllCorrect={onContinue}
+                                />
+                            )}
+
+                            {challenge.type === "VOICE" && challenge.correctAnswer && (
+                                <MicrophoneComponent
+                                    challenge={{
+                                        id: challenge.id,
+                                        question: challenge.question,
+                                    }}
+                                    onContinue={(transcript) => {
+                                        // Chuyển đổi thành chữ thường để so sánh
+                                        const userInput = transcript.trim().toLowerCase();
+                                        const correctAnswer = challenge.correctAnswer ? challenge.correctAnswer.trim().toLowerCase() : "";
+
+                                        if (userInput === correctAnswer) {
+                                            console.log("Answer is correct!");
+                                            setStatus("correct");
+
+                                            startTransition(() => {
+                                                upsertChallengeProgress(challenge.id)
+                                                    .then(() => {
+                                                        setTimeout(() => {
+                                                            onNext(); // Chuyển sang câu tiếp theo
+                                                            setStatus("none");
+                                                        }, 1000);
+                                                    })
+                                                    .catch(() => toast.error("Something went wrong! Please try again."));
+                                            });
+                                        } else {
+                                            console.log("Answer is wrong!");
+                                            setStatus("wrong");
+                                            setHearts((pre) => Math.max(pre - 1, 0));
+                                        }
+                                    }}
                                 />
                             )}
 
