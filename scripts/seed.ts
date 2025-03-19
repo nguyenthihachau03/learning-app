@@ -21,6 +21,7 @@ const main = async () => {
         await db.delete(schema.challenges);
         await db.delete(schema.challengeOptions);
         await db.delete(schema.challengeProgress);
+        await db.delete(schema.challengeGames);
         await db.delete(schema.userSubscriptionPayOS);
 
         await db.insert(schema.courses).values([

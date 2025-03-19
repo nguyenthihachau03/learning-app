@@ -26,9 +26,9 @@ export const Challenge = ({
             // type === "SELECT" && "grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]"
             type === "ASSIST" && "grid-cols-1",
             type === "SELECT" && "grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]",
-            type === "IMAGE" && "grid-cols-2 gap-4", // Hiển thị dạng hình ảnh theo chiều dọc
-            type === "AUDIO" && "grid-cols-2 gap-4", // Hiển thị dạng âm thanh theo chiều dọc
-            type === "FILL_IN_BLANK" && "grid-cols-1" // Hiển thị dạng điền từ theo chiều dọc
+            type === "AUDIO" && "grid-cols-2 gap-4",
+            type === "FILL_IN_BLANK" && "grid-cols-1",
+            type === "GAME" && "grid-cols-2 gap-2"
 
         )}>
             {options.map((option, i) => (
@@ -44,7 +44,7 @@ export const Challenge = ({
                     selected={selectedOption === option.id}
                     onClick={() => onSelect(option.id)}
                     status={status}
-                    audioSrc={option.audioSrc}
+                    audioSrc={option.audioSrc || ""}
                     disable={disable}
                     type={type}
                 />

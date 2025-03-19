@@ -33,47 +33,6 @@
 //     </Edit>
 //   );
 // };
-// import {
-//   Edit,
-//   NumberInput,
-//   ReferenceInput,
-//   SelectInput,
-//   SimpleForm,
-//   TextInput,
-//   required,
-// } from "react-admin";
-// import { useState } from "react";
-
-// export const ChallengeEdit = () => {
-//   const [type, setType] = useState("");
-
-//   return (
-//     <Edit>
-//       <SimpleForm>
-//         <TextInput source="question" validate={[required()]} label="Question" />
-//         <SelectInput
-//           source="type"
-//           validate={[required()]}
-//           choices={[
-//             { id: "SELECT", name: "Chọn đáp án đúng" },
-//             { id: "ASSIST", name: "Từ nào tương ứng" },
-//             { id: "IMAGE", name: "Câu hỏi hình ảnh" },
-//             { id: "AUDIO", name: "Câu hỏi âm thanh" },
-//             { id: "FILL_IN_BLANK", name: "Điền vào chỗ trống" },
-//           ]}
-//           onChange={(e) => setType(e.target.value)}
-//         />
-//         {type === "IMAGE" && <TextInput source="imageUrl" label="Image URL" />}
-//         {type === "AUDIO" && <TextInput source="audioUrl" label="Audio URL" />}
-//         {type === "FILL_IN_BLANK" && (
-//           <TextInput source="correctAnswer" label="Correct Answer" />
-//         )}
-//         <ReferenceInput source="lessonId" reference="lessons" />
-//         <NumberInput source="order" validate={required()} label="Order" />
-//       </SimpleForm>
-//     </Edit>
-//   );
-// };
 
 import {
   Edit,
@@ -95,11 +54,10 @@ export const ChallengeEdit = () => {
           source="type"
           validate={[required()]}
           choices={[
-            { id: "SELECT", name: "Chọn đáp án đúng" },
-            { id: "ASSIST", name: "Từ nào tương ứng" },
-            { id: "IMAGE", name: "Câu hỏi hình ảnh" },
-            { id: "AUDIO", name: "Câu hỏi âm thanh" },
-            { id: "FILL_IN_BLANK", name: "Điền vào chỗ trống" },
+            { id: "SELECT", name: "SELECT" },
+            { id: "ASSIST", name: "ASSIST" },
+            { id: "AUDIO", name: "AUDIO" },
+            { id: "FILL_IN_BLANK", name: "FILL_IN_BLANK" },
           ]}
         />
         {/* Theo dõi giá trị type */}

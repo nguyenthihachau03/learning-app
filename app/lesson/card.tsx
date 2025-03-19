@@ -31,6 +31,21 @@ export const Card = ({
     type,
 }: Props) => {
     const [audio, _, controls] = useAudio({ src: audioSrc || "" });
+    // Chỉ render useAudio nếu audioSrc hợp lệ và không phải dạng ASSIST
+    // const audioElement = audioSrc && type !== "ASSIST" ? useAudio({ src: audioSrc })[0] : null;
+    // const [audio, , controls] = useAudio({ src: audioSrc || undefined });
+
+    // const handleClick = useCallback(() => {
+    //     if (disable) return;
+
+    //     if (audioSrc && type !== "ASSIST") {
+    //         useAudio({ src: audioSrc })[2].play(); // Chỉ play nếu có audioSrc hợp lệ
+    //     }
+
+    //     onClick();
+    // }, [disable, onClick, audioSrc, type]);
+
+    // useKey(shortcut, handleClick, {}, [handleClick]);
 
     const handleClick = useCallback(() => {
         if (disable) return;
@@ -53,7 +68,9 @@ export const Card = ({
                 type === "ASSIST" && "lg:p-3 w-full"
             )}
         >
-            {audio}
+            {/* {audio} */}
+            {/* ✅ Chỉ render audio nếu có audioSrc hợp lệ và không phải ASSIST */}
+            {audioSrc && type !== "ASSIST" && audio}
             {imageSrc && (
                 <div
                     className="relative aspect-square mb-4 max-h-[80px] lg:max-h-[150px] w-full"
@@ -99,7 +116,7 @@ export const Card = ({
                 </div>
             )} */}
 
-                    {/* Hiển thị văn bản bình thường */}
+            {/* Hiển thị văn bản bình thường */}
             <div className={cn(
                 "flex items-center justify-between mt-2",
                 type === "ASSIST" && "flex-row-reverse",

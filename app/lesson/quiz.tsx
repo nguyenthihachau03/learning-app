@@ -9,7 +9,7 @@ import { useAudio, useWindowSize, useMount } from "react-use";
 
 import { reduceHearts } from "@/actions/user-progress";
 import { useHeartsModal } from "@/store/use-hearts-modal";
-import { challengeOptions, challenges, userSubscriptionPayOS } from "@/db/schema"
+import { challengeGames, challengeOptions, challenges, userSubscriptionPayOS } from "@/db/schema"
 import { usePracticeModal } from "@/store/use-practice-modal";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 
@@ -18,6 +18,7 @@ import { Footer } from "./footer";
 import { Challenge } from "./challenge";
 import { ResultCard } from "./result-card";
 import { QuestionBubble } from "./question-bubble";
+import { GameBubble } from "./game-bubble";
 
 type Props = {
     initialPercentage: number,
@@ -26,6 +27,7 @@ type Props = {
     initialLessonChallenges: (typeof challenges.$inferSelect & {
         completed: boolean,
         challengeOptions: typeof challengeOptions.$inferSelect[];
+        challengeGames: typeof challengeGames.$inferSelect[];
     })[],
     userSubcription: typeof userSubscriptionPayOS.$inferSelect & {
         isActive: boolean;
@@ -111,7 +113,7 @@ export const Quiz = ({
 
     const [selectedOption, setSelectedOption] = useState<number | undefined>();
     const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
-
+    const [matchedPairs, setMatchedPairs] = useState<number[]>([]);
     const challenge = challenges[activeIndex];
     const options = challenge?.challengeOptions ?? [];
 
@@ -151,6 +153,23 @@ export const Quiz = ({
             return;
         }
 
+        if (challenge.type === "GAME") {
+            setStatus("correct");
+
+            startTransition(() => {
+                upsertChallengeProgress(challenge.id)
+                    .then(() => {
+                        setTimeout(() => {
+                            onNext(); // Chuyển sang câu tiếp theo
+                            setStatus("none"); // Reset trạng thái để còn học lại
+                        }, 1000);
+                    })
+                    .catch(() => toast.error("Something went wrong! Please try again."));
+            });
+
+            return; // Dừng tại đây để không tiếp tục các xử lý khác
+        }
+
         if (challenge.type === "FILL_IN_BLANK") {
             const userInput = fillInText.trim().toLowerCase();
             const correctAnswer = challenge.correctAnswer?.trim().toLowerCase() || "";
@@ -176,6 +195,7 @@ export const Quiz = ({
             } else {
                 console.log("Answer is wrong!");
                 setStatus("wrong");
+                setHearts((pre) => Math.max(pre - 1, 0));
             }
             return;
         }
@@ -289,18 +309,18 @@ export const Quiz = ({
 
     const title = (() => {
         switch (challenge.type) {
-            case "ASSIST":
-                return "Chọn nghĩa của từ sau";
-            case "IMAGE":
-                return <>Chọn hình ảnh phù hợp:<br />{challenge.question}</>;
-            case "FILL_IN_BLANK":
-                return <>Điền chữ còn thiếu vào chỗ trống:<br />{challenge.question}</>;
-            case "MATCHING":
-                return "Nối các cặp tương ứng";
-            case "LISTENING":
-                return "Nghe và điền từ đúng";
-            case "SPEAKING":
-                return "Nói lại câu sau";
+            // case "ASSIST":
+            //     return "Chọn nghĩa của từ sau";
+            // case "FILL_IN_BLANK":
+            //     return <>Điền chữ còn thiếu vào chỗ trống:<br />{challenge.question}</>;
+            // case "GAME":
+            //     return "Nối các cặp tương ứng";
+            // case "LISTENING":
+            //     return "Nghe và điền từ đúng";
+            // case "SPEAKING":
+            //     return "Nói lại câu sau";
+            case "GAME":
+                return "Nối các cặp tương ứng"; // ✅ Tiêu đề cho game
             case "AUDIO":
                 // return <>Nghe và chọn đáp án đúng:<br />{challenge.question}</>;
                 return "Nghe và chọn đáp án đúng";
@@ -371,6 +391,17 @@ export const Quiz = ({
                             {/* Nếu là ASSIST thì hiển thị QuestionBubble */}
                             {challenge.type === "ASSIST" && (
                                 <QuestionBubble question={challenge.question} />
+                            )}
+
+                            {challenge.type === "GAME" && (
+                                <GameBubble
+                                    pairs={challenge.challengeGames.map(g => ({
+                                        id: g.id,
+                                        answer1: g.answer1,
+                                        answer2: g.answer2
+                                    }))}
+                                    onAllCorrect={onContinue}
+                                />
                             )}
 
                             {/* Nếu là FILL_IN_BLANK thì hiển thị ô nhập */}

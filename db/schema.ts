@@ -83,6 +83,7 @@ export const challengesRelations = relations(challenges, ({ one, many }) => ({
     }),
     challengeOptions: many(challengeOptions),
     challengeProgress: many(challengeProgress),
+    challengeGames: many(challengeGames),
 }));
 
 export const challengeOptions = pgTable("challenge_options", {
@@ -100,7 +101,21 @@ export const challengeOptionsRelations = relations(challengeOptions, ({ one }) =
         references: [challenges.id],
     }),
 }));
-
+export const challengeGames = pgTable("challenge_games", {
+    id: serial("id").primaryKey(),
+    challengeId: integer("challenge_id").references(() => challenges.id, { onDelete: "cascade" }).notNull(),
+    answer1: text("answer1").notNull(),
+    answer2: text("answer2").notNull(),
+    correct: boolean("correct").notNull(),
+    imageSrc: text("image_src"),
+    audioSrc: text("audio_src"),
+});
+export const challengeGamesRelations = relations(challengeGames, ({ one }) => ({
+    challenge: one(challenges, {
+        fields: [challengeGames.challengeId],
+        references: [challenges.id],
+    }),
+}));
 export const challengeProgress = pgTable("challenge_progress", {
     id: serial("id").primaryKey(),
     userId: text("user_id").notNull(),

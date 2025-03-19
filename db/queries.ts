@@ -157,6 +157,7 @@ export const getCourseProgress = cache(async () => {
         .flatMap((unit) => unit.lessons)
         .find((lesson) => {
             return lesson.challenges.some((challenge) => {
+                console.log('challenge :>> ', challenge);
                 return !challenge.challengeProgress
                     || challenge.challengeProgress.length === 0
                     || challenge.challengeProgress.some((progress) => progress.completed === false)
@@ -194,6 +195,7 @@ export const getLesson = cache(async (id?: number) => {
                     challengeProgress: {
                         where: eq(challengeProgress.userId, userId),
                     },
+                    challengeGames: true,
                 },
             },
         },
@@ -286,15 +288,15 @@ export const getTopTenUsers = cache(async () => {
     if (!userId) return [];
 
     const data = await db.query.userProgress.findMany({
-      orderBy: (userProgress, { desc }) => [desc(userProgress.points)],
-      limit: 10,
-      columns: {
-        userId: true,
-        userName: true,
-        userImageSrc: true,
-        points: true,
-      },
+        orderBy: (userProgress, { desc }) => [desc(userProgress.points)],
+        limit: 10,
+        columns: {
+            userId: true,
+            userName: true,
+            userImageSrc: true,
+            points: true,
+        },
     });
 
     return data;
-  });
+});
