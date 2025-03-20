@@ -25,6 +25,21 @@ export const GET = async (
   return NextResponse.json(data);
 };
 
+export const POST = async (req: NextRequest) => {
+  const isAdmin = await getIsAdmin();
+  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
+
+  const body = await req.json();
+  console.log("challengeOptions POST", body);
+
+  const data = await db
+    .insert(challengeOptions)
+    .values(body)
+    .returning();
+
+  return NextResponse.json(data[0]);
+};
+
 export const PUT = async (
   req: NextRequest,
   { params }: { params: Promise<{ challengeOptionId: string }> } // ✅ Sửa kiểu params thành Promise

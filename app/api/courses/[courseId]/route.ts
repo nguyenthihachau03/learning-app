@@ -34,6 +34,21 @@ export const PUT = async (req: NextRequest, props: { params: Promise<{ courseId:
   return NextResponse.json(data[0]);
 };
 
+export const POST = async (req: NextRequest) => {
+  const isAdmin = getIsAdmin();
+  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
+
+  const body = await req.json();
+  console.log("Courses POST", body);
+
+  const data = await db
+    .insert(courses)
+    .values(body)
+    .returning();
+
+  return NextResponse.json(data[0]);
+};
+
 export const DELETE = async (_req: NextRequest, props: { params: Promise<{ courseId: number }> }) => {
   const params = await props.params;
   const isAdmin = getIsAdmin();

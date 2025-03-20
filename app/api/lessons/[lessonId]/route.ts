@@ -46,3 +46,18 @@ export const DELETE = async (_req: NextRequest, props: { params: Promise<{ lesso
 
   return NextResponse.json(data[0]);
 };
+
+export const POST = async (req: NextRequest) => {
+  const isAdmin = getIsAdmin();
+  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
+
+  const body = await req.json();
+  console.log("Lessons POST", body);
+
+  const data = await db
+    .insert(lessons)
+    .values(body)
+    .returning();
+
+  return NextResponse.json(data[0]);
+};

@@ -10,7 +10,9 @@ import { challengeProgress, challenges, userProgress } from "@/db/schema";
 
 export const upsertChallengeProgress = async (challengeId: number) => {
     const {userId} = await auth();
-
+    console.log("userId");
+    console.log("challengeId");
+    console.log('upsertChallengeProgress')
     if (!userId) {
         throw new Error("User not found");
     }

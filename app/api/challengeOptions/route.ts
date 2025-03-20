@@ -9,7 +9,7 @@ export const GET = async () => {
   if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
 
   const data = await db.query.challengeOptions.findMany();
-
+  console.log('challengeOptions')
   return NextResponse.json(data);
 };
 
@@ -18,7 +18,7 @@ export const POST = async (req: NextRequest) => {
   if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
 
   const body = (await req.json()) as typeof challengeOptions.$inferSelect;
-
+  console.log('challengeOptions', body)
   const data = await db
     .insert(challengeOptions)
     .values({

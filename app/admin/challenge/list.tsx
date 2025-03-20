@@ -43,6 +43,7 @@ import {
 } from "react-admin";
 
 export const ChallengeList = () => {
+
   return (
     <List>
       <Datagrid rowClick="edit">
@@ -53,9 +54,14 @@ export const ChallengeList = () => {
           choices={[
             { id: "SELECT", name: "SELECT" },
             { id: "ASSIST", name: "ASSIST" },
+            { id: "GAME", name: "GAME" },
             { id: "AUDIO", name: "AUDIO" },
+            { id: "VOICE", name: "VOICE" },
             { id: "FILL_IN_BLANK", name: "FILL_IN_BLANK" },
-          ]}
+          ]
+        }
+          optionValue="id"
+         optionText="name"
         />
         <ReferenceField source="lessonId" reference="lessons" />
         <NumberField source="order" />
