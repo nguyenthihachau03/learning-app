@@ -45,7 +45,7 @@ import {
 export const ChallengeList = () => {
 
   return (
-    <List>
+    <List pagination={false}>
       <Datagrid rowClick="edit">
         <NumberField source="id" />
         <TextField source="question" />

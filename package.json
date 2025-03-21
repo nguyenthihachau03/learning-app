@@ -13,10 +13,12 @@
     "db:reset": "tsx ./scripts/reset.ts"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/nextjs": "^6.10.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/material": "^6.4.7",
+    "@mui/icons-material": "^5.17.1",
+    "@mui/material": "^5.17.1",
     "@neondatabase/serverless": "^0.10.4",
     "@payos/node": "^1.0.10",
     "@radix-ui/react-avatar": "^1.1.3",

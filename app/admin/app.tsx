@@ -20,12 +20,14 @@ import { UnitList } from "./unit/list";
 import { ChallengeGamesList } from "./challengeGame/list";
 import { ChallengeGameCreate } from "./challengeGame/create";
 import { ChallengeGameEdit } from "./challengeGame/edit";
+import { UserList } from "./user/userList";
 
 const dataProvider = simpleRestProvider("/api");
 
 const App = () => {
   return (
     <Admin dataProvider={dataProvider}>
+      <Resource name="users" recordRepresentation="email" list={UserList} options={{ label: "Users" }} />
       <Resource name="courses" recordRepresentation="title" list={CourseList} create={CourseCreate} edit={CourseEdit} />
       <Resource name="units" recordRepresentation="title" list={UnitList} create={UnitCreate} edit={UnitEdit} />
       <Resource name="lessons" recordRepresentation="title" list={LessonList} create={LessonCreate} edit={LessonEdit} />
