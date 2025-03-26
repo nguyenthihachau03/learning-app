@@ -6,6 +6,7 @@ import { ExitModel } from "@/components/modals/exit-modal";
 import { HeartsModal } from "@/components/modals/hearts-modal";
 import { PracticeModal } from "@/components/modals/practice-modal";
 import "./globals.css";
+import ChatComponent from "@/components/chat/chat-component";
 
 const font = Nunito({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={font.className}>
+          <ChatComponent />
           <Toaster />
           <ExitModel />
           <HeartsModal />
