@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const courses = pgTable("courses", {
     id: serial("id").primaryKey(),
@@ -155,3 +155,38 @@ export const userSubscriptionPayOS = pgTable("user_subscription_payos", {
     status: text("status").notNull().default("PENDING"),
     currentPeriodEnd: timestamp("current_period_end"), // ✅ Cho phép null ban đầu
 });
+
+export const vocabularys = pgTable("vocabularys", {
+    id: serial("id").primaryKey(),
+    courseId: integer("course_id").references(() => courses.id, { onDelete: "cascade" }).notNull(),
+    title: text("title").notNull(), // Tiêu đề bộ từ vựng
+    description: text("description"),
+    order: integer("order").notNull(),
+});
+export const vocabularySetRelations = relations(vocabularys, ({ one, many }) => ({
+    course: one(courses, {
+        fields: [vocabularys.courseId],
+        references: [courses.id],
+    }),
+    quizzes: many(quiz),
+}));
+
+export const quiz = pgTable("quiz", {
+    id: serial("id").primaryKey(),
+    vocabularyId: integer("vocabulary_set_id").references(() => vocabularys.id, { onDelete: "cascade" }).notNull(),
+    type: varchar("type", { length: 50 }).notNull(),
+    question: text("question").notNull(),
+    options: jsonb("options").notNull(),
+    correctAnswer: text("correct_answer").notNull(),
+    explanation: text("explanation"),
+    order: integer("order").notNull(),
+    audioUrl: text("audio_url"),
+    imageUrl: text("image_url"),
+});
+
+export const quizRelations = relations(quiz, ({ one }) => ({
+    vocabularySet: one(vocabularys, {
+        fields: [quiz.vocabularyId],
+        references: [vocabularys.id],
+    }),
+}));

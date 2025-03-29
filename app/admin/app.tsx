@@ -20,20 +20,26 @@ import { UnitList } from "./unit/list";
 import { ChallengeGamesList } from "./challengeGame/list";
 import { ChallengeGameCreate } from "./challengeGame/create";
 import { ChallengeGameEdit } from "./challengeGame/edit";
-import { UserList } from "./user/userList";
+import { QuizList } from "./quiz/list";
+import { QuizEdit } from "./quiz/edit";
+import { QuizCreate } from "./quiz/create";
+import { VocabularyList } from "./vocabulary/list";
+import { VocabularyEdit } from "./vocabulary/edit";
+import { VocabularyCreate } from "./vocabulary/create";
 
 const dataProvider = simpleRestProvider("/api");
 
 const App = () => {
   return (
     <Admin dataProvider={dataProvider}>
-      <Resource name="users" recordRepresentation="email" list={UserList} options={{ label: "Users" }} />
       <Resource name="courses" recordRepresentation="title" list={CourseList} create={CourseCreate} edit={CourseEdit} />
       <Resource name="units" recordRepresentation="title" list={UnitList} create={UnitCreate} edit={UnitEdit} />
+      <Resource name="vocabularys" recordRepresentation="title" list={VocabularyList} create={VocabularyCreate} edit={VocabularyEdit} />
       <Resource name="lessons" recordRepresentation="title" list={LessonList} create={LessonCreate} edit={LessonEdit} />
       <Resource name="challenges" recordRepresentation="question" list={ChallengeList} create={ChallengeCreate} edit={ChallengeEdit} />
       <Resource name="challengeOptions" recordRepresentation="text" list={ChallengeOptionsList} create={ChallengeOptionCreate} edit={ChallengeOptionEdit} options={{ label: "Challenge Options" }} />
       <Resource name="challengeGames" recordRepresentation="title" list={ChallengeGamesList} create={ChallengeGameCreate} edit={ChallengeGameEdit} options={{ label: "Challenge Games" }}/>
+      <Resource name="quiz" recordRepresentation="title" list={QuizList} create={QuizCreate} edit={QuizEdit}/>
     </Admin>
   );
 };
