@@ -9,7 +9,11 @@ import {
 
 export const ChallengeOptionsList = () => {
   return (
-    <List>
+    <List
+      resource="challengeOptions"
+      sort={{ field: "challengeId", order: "ASC" }}
+      pagination={false}
+    >
       <Datagrid rowClick="edit">
         <NumberField source="id" />
         <TextField source="text" />

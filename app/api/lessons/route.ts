@@ -1,17 +1,61 @@
 import { type NextRequest, NextResponse } from "next/server";
-
 import db from "@/db/drizzle";
 import { lessons } from "@/db/schema";
 import { getIsAdmin } from "@/lib/admin";
-import { eq } from "drizzle-orm";
-
-export const GET = async () => {
+import { eq, asc, desc, sql } from "drizzle-orm";
+export const GET = async (req: NextRequest) => {
   const isAdmin = getIsAdmin();
   if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
 
-  const data = await db.query.lessons.findMany();
-  console.log('lessons')
-  return NextResponse.json(data);
+  const { searchParams } = new URL(req.url);
+
+  const sortParam = searchParams.get("sort");
+  let sortField = "unitId_order";
+  let sortOrder = "asc";
+
+  if (sortParam) {
+    try {
+      const [field, order] = JSON.parse(sortParam);
+      sortField = field;
+      sortOrder = order.toLowerCase();
+    } catch (err) {
+      console.warn("Invalid sort param", sortParam);
+    }
+  }
+
+  // Sắp xếp đúng chiều theo sortOrder cho cả unitId + order
+  let orderByClause;
+  if (sortField === "order") {
+    orderByClause = [
+      asc(lessons.unitId),
+      sortOrder === "desc" ? desc(lessons.order) : asc(lessons.order)
+    ];
+  } else {
+    // fallback cho sort field khác
+    const sortableFields = {
+      id: lessons.id,
+      title: lessons.title,
+      unitId: lessons.unitId,
+      order: lessons.order,
+    };
+    const column = sortableFields[sortField as keyof typeof sortableFields] || lessons.id;
+    orderByClause = sortOrder === "desc" ? [desc(column)] : [asc(column)];
+  }
+
+  const [data, total] = await Promise.all([
+    db.select().from(lessons).orderBy(...orderByClause),
+    db.select({ count: sql<number>`COUNT(*)` }).from(lessons),
+  ]);
+
+  const totalCount = Number((total[0] as any).count);
+
+  return new NextResponse(JSON.stringify(data), {
+    status: 206,
+    headers: {
+      "Content-Range": `items 0-${data.length - 1}/${totalCount}`,
+      "Access-Control-Expose-Headers": "Content-Range",
+    },
+  });
 };
 
 export const POST = async (req: NextRequest) => {

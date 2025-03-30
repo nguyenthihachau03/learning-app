@@ -47,3 +47,4 @@ export const DELETE = async (_req: NextRequest, props: { params: Promise<{ vocab
 
   return NextResponse.json(data[0]);
 };
+

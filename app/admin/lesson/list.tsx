@@ -8,8 +8,12 @@ import {
 
 export const LessonList = () => {
   return (
-    <List>
-      <Datagrid rowClick="edit">
+    <List
+      resource="lessons"
+      sort={{ field: "order", order: "ASC" }}
+      pagination={false}
+    >
+      <Datagrid rowClick="edit" >
         <NumberField source="id" />
         <TextField source="title" />
         <ReferenceField source="unitId" reference="units" />

@@ -1,80 +1,100 @@
+import { useEffect, useState } from "react";
 import {
-    Create,
-    SimpleForm,
-    TextInput,
-    NumberInput,
-    ReferenceInput,
-    SelectInput,
-    required,
-    ArrayInput,
-    SimpleFormIterator,
-  } from "react-admin";
-  import { useWatch } from "react-hook-form";
+  Create,
+  SimpleForm,
+  TextInput,
+  NumberInput,
+  ReferenceInput,
+  SelectInput,
+  required,
+  ArrayInput,
+  SimpleFormIterator,
+  useDataProvider,
+} from "react-admin";
+import { useWatch } from "react-hook-form";
 
-  export const QuizCreate = () => {
-    return (
-      <Create>
-        <SimpleForm>
-          <TextInput source="question" label="Câu hỏi" validate={required()} fullWidth />
+export const QuizCreate = () => {
+  const [orders, setOrders] = useState<number[]>([]);
+  const dataProvider = useDataProvider();
+
+  useEffect(() => {
+    dataProvider
+      .getList("quiz", {
+        pagination: { page: 1, perPage: 100 },
+        sort: { field: "order", order: "ASC" },
+        filter: {}
+      })
+      .then(({ data }) => setOrders(data.map((q) => q.order)))
+      .catch((error) => console.error("Error fetching orders:", error));
+  }, []);
+
+  const validateOrder = (value: number) => {
+    return orders.includes(value) ? "Order must be unique" : undefined;
+  };
+  return (
+    <Create>
+      <SimpleForm>
+        <TextInput source="question" label="Question" validate={required()} fullWidth />
+        <SelectInput
+          source="type"
+          label="Type Question"
+          choices={[
+            { id: "SELECT", name: "Choose the correct answer" },
+            { id: "TRUE_FALSE", name: "Choose right or wrong" },
+            { id: "FILL_IN_BLANK", name: "Fill in the blanks" },
+          ]}
+          validate={required()}
+        />
+        <ConditionalFields />
+        <ReferenceInput source="vocabularyId" reference="vocabularys">
+          <SelectInput validate={required()} label="Vocabulary set" />
+        </ReferenceInput>
+
+        <NumberInput source="order" label="Order" validate={[required(), validateOrder]}  />
+      </SimpleForm>
+    </Create>
+  );
+};
+const ConditionalFields = () => {
+  const type = useWatch({ name: "type" });
+
+
+  return (
+    <>
+      {type === "SELECT" && (
+        <>
+          <ArrayInput source="options" label="Add answer">
+            <SimpleFormIterator>
+              <TextInput source="option" label="Add answer" validate={required()} fullWidth />
+            </SimpleFormIterator>
+          </ArrayInput>
+          <TextInput source="correctAnswer" label="Correct answer" validate={required()} fullWidth />
+        </>
+      )}
+
+      {type === "TRUE_FALSE" && (
+        <>
+          {/* Nếu là câu đúng/sai */}
           <SelectInput
-            source="type"
-            label="Loại câu hỏi"
+            source="correctAnswer"
+            label="Correct answer"
             choices={[
-              { id: "SELECT", name: "Chọn đáp án đúng" },
-              { id: "TRUE_FALSE", name: "Chọn đúng sai" },
-              { id: "FILL_IN_BLANK", name: "Điền vào chỗ trống" },
+              { id: "true", name: "True" },
+              { id: "false", name: "False" },
             ]}
             validate={required()}
           />
-          <ConditionalFields />
-          <ReferenceInput source="vocabularyId" reference="vocabularys">
-            <SelectInput validate={required()} label="Bộ từ vựng" />
-          </ReferenceInput>
+        </>
+      )}
 
-          <NumberInput source="order" label="Thứ tự" validate={required()} />
-        </SimpleForm>
-      </Create>
-    );
-  };
-  const ConditionalFields = () => {
-    const type = useWatch({ name: "type" });
-
-    return (
-      <>
-        {type === "SELECT" && (
-          <>
-            <ArrayInput source="options" label="Thêm đáp án">
-              <SimpleFormIterator>
-                <TextInput source="option" label="Thêm đáp án" validate={required()} fullWidth />
-              </SimpleFormIterator>
-            </ArrayInput>
-            <TextInput source="correctAnswer" label="Đáp án đúng" validate={required()} fullWidth />
-          </>
-        )}
-
-        {type === "TRUE_FALSE" && (
-          <>
-            {/* Nếu là câu đúng/sai */}
-            <SelectInput
-              source="correctAnswer"
-              label="Đáp án đúng"
-              choices={[
-                { id: "true", name: "Đúng" },
-                { id: "false", name: "Sai" },
-              ]}
-              validate={required()}
-            />
-          </>
-        )}
-
-        {type === "FILL_IN_BLANK" && (
-          <>
-            <TextInput source="correctAnswer" label="Đáp án đúng" validate={required()} fullWidth />
-          </>
-        )}
-        <TextInput source="explanation" label="Giải thích" fullWidth />
-        <TextInput source="audioUrl" label="Link Audio" fullWidth />
-        <TextInput source="imageUrl" label="Link Hình ảnh" fullWidth />
-      </>
-    );
-  };
+      {type === "FILL_IN_BLANK" && (
+        <>
+          <TextInput source="correctAnswer" label="Correct answer" validate={required()} fullWidth />
+        </>
+      )}
+      <TextInput source="explanation" label="Explan" fullWidth />
+      <TextInput source="audioUrl" label="Link Audio" fullWidth />
+      <TextInput source="imageUrl" label="Link Hình ảnh" fullWidth />
+    </>
+  );
+};

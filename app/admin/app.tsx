@@ -34,7 +34,7 @@ const App = () => {
     <Admin dataProvider={dataProvider}>
       <Resource name="courses" recordRepresentation="title" list={CourseList} create={CourseCreate} edit={CourseEdit} />
       <Resource name="units" recordRepresentation="title" list={UnitList} create={UnitCreate} edit={UnitEdit} />
-      <Resource name="vocabularys" recordRepresentation="title" list={VocabularyList} create={VocabularyCreate} edit={VocabularyEdit} />
+      <Resource name="vocabularys" recordRepresentation="title" list={VocabularyList} create={VocabularyCreate} edit={VocabularyEdit} options={{ label: "Vocabularies" }}/>
       <Resource name="lessons" recordRepresentation="title" list={LessonList} create={LessonCreate} edit={LessonEdit} />
       <Resource name="challenges" recordRepresentation="question" list={ChallengeList} create={ChallengeCreate} edit={ChallengeEdit} />
       <Resource name="challengeOptions" recordRepresentation="text" list={ChallengeOptionsList} create={ChallengeOptionCreate} edit={ChallengeOptionEdit} options={{ label: "Challenge Options" }} />
