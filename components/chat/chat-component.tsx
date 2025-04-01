@@ -60,7 +60,7 @@ const ChatComponent = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 flex flex-col items-end z-50">
+    <div className="hidden sm:flex fixed bottom-4 right-4 flex-col items-end z-50">
       {/* Nút mở chat */}
       <button
         onClick={toggleChat}

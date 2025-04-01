@@ -29,12 +29,13 @@ import { VocabularyCreate } from "./vocabulary/create";
 import { VocabularyItemList } from "./vocabularyItem/list";
 import { VocabularyItemCreate } from "./vocabularyItem/create";
 import { VocabularyItemEdit } from "./vocabularyItem/edit";
+import Dashboard from "./dashboard";
 
 const dataProvider = simpleRestProvider("/api");
 
 const App = () => {
   return (
-    <Admin dataProvider={dataProvider}>
+    <Admin dataProvider={dataProvider} dashboard={Dashboard}>
       <Resource name="courses" recordRepresentation="title" list={CourseList} create={CourseCreate} edit={CourseEdit} />
       <Resource name="units" recordRepresentation="title" list={UnitList} create={UnitCreate} edit={UnitEdit} />
       <Resource name="vocabularys" recordRepresentation="title" list={VocabularyList} create={VocabularyCreate} edit={VocabularyEdit} options={{ label: "Vocabularies" }}/>
