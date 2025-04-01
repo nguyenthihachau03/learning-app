@@ -5,12 +5,26 @@ import { getIsAdmin } from "@/lib/admin";
 import { vocabularyItems } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-// GET: Lấy tất cả dữ liệu
-export const GET = async () => {
+// GET: Lấy tất cả dữ liệu hoặc lọc theo vocabularyId
+export const GET = async (req: NextRequest) => {
   const isAdmin = getIsAdmin();
   if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
 
-  const data = await db.query.vocabularyItems.findMany();
+  const { searchParams } = new URL(req.url);
+  const vocabularyId = searchParams.get("vocabularyItemId");
+
+  let data;
+  if (vocabularyId) {
+    data = await db.query.vocabularyItems.findMany({
+      where: eq(vocabularyItems.vocabularyId, Number(vocabularyId)),
+      orderBy: (items, { asc }) => [asc(items.order)],
+    });
+  } else {
+    data = await db.query.vocabularyItems.findMany({
+      orderBy: (items, { asc }) => [asc(items.order)],
+    });
+  }
+
   return NextResponse.json(data);
 };
 
@@ -50,7 +64,7 @@ export const POST = async (req: NextRequest) => {
 console.log('dataposst', data)
   // Đảm bảo phản hồi có dạng { data: { id: 123, ... } }
   return NextResponse.json(data[0]);
-};  
+};
 
 
 
