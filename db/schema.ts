@@ -169,6 +169,22 @@ export const vocabularySetRelations = relations(vocabularys, ({ one, many }) => 
         references: [courses.id],
     }),
     quizzes: many(quiz),
+    items: many(vocabularyItems),
+}));
+
+export const vocabularyItems = pgTable("vocabulary_items", {
+    id: serial("id").primaryKey(),
+    vocabularyId: integer("vocabulary_id").references(() => vocabularys.id, { onDelete: "cascade" }).notNull(),
+    word: text("word").notNull(),
+    meaning: text("meaning").notNull(),
+    order: integer("order").notNull(),
+});
+
+export const vocabularyItemRelations = relations(vocabularyItems, ({ one }) => ({
+    vocabulary: one(vocabularys, {
+        fields: [vocabularyItems.vocabularyId],
+        references: [vocabularys.id],
+    }),
 }));
 
 export const quiz = pgTable("quiz", {

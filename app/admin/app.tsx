@@ -26,6 +26,9 @@ import { QuizCreate } from "./quiz/create";
 import { VocabularyList } from "./vocabulary/list";
 import { VocabularyEdit } from "./vocabulary/edit";
 import { VocabularyCreate } from "./vocabulary/create";
+import { VocabularyItemList } from "./vocabularyItem/list";
+import { VocabularyItemCreate } from "./vocabularyItem/create";
+import { VocabularyItemEdit } from "./vocabularyItem/edit";
 
 const dataProvider = simpleRestProvider("/api");
 
@@ -35,6 +38,7 @@ const App = () => {
       <Resource name="courses" recordRepresentation="title" list={CourseList} create={CourseCreate} edit={CourseEdit} />
       <Resource name="units" recordRepresentation="title" list={UnitList} create={UnitCreate} edit={UnitEdit} />
       <Resource name="vocabularys" recordRepresentation="title" list={VocabularyList} create={VocabularyCreate} edit={VocabularyEdit} options={{ label: "Vocabularies" }}/>
+      <Resource name="vocabularyItems" recordRepresentation="title" list={VocabularyItemList} create={VocabularyItemCreate} edit={VocabularyItemEdit}/>
       <Resource name="lessons" recordRepresentation="title" list={LessonList} create={LessonCreate} edit={LessonEdit} />
       <Resource name="challenges" recordRepresentation="question" list={ChallengeList} create={ChallengeCreate} edit={ChallengeEdit} />
       <Resource name="challengeOptions" recordRepresentation="text" list={ChallengeOptionsList} create={ChallengeOptionCreate} edit={ChallengeOptionEdit} options={{ label: "Challenge Options" }} />
