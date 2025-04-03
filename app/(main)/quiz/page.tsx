@@ -45,7 +45,7 @@ export default function QuizPage() {
   useEffect(() => {
     if (activeCourseId) {
       setLoadingVocabulary(true);
-      fetch("/api/vocabularys")
+      fetch("/api/vocabularys/vocabularyQuiz")
         .then((res) => res.json())
         .then((data: VocabularySet[]) => {
           const filtered = data.filter((v) => v.courseId === activeCourseId);

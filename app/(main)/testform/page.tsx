@@ -27,7 +27,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     setLoadingVocabulary(true);
-    fetch("/api/vocabularys")
+    fetch("/api/vocabularys/vocabularySet")
       .then((res) => res.json())
       .then((data) => {
         setVocabularySets(data);

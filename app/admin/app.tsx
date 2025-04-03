@@ -30,21 +30,22 @@ import { VocabularyItemList } from "./vocabularyItem/list";
 import { VocabularyItemCreate } from "./vocabularyItem/create";
 import { VocabularyItemEdit } from "./vocabularyItem/edit";
 import Dashboard from "./dashboard";
+import customLayout from "./customLayout";
 
 const dataProvider = simpleRestProvider("/api");
 
 const App = () => {
   return (
-    <Admin dataProvider={dataProvider} dashboard={Dashboard}>
-      <Resource name="courses" recordRepresentation="title" list={CourseList} create={CourseCreate} edit={CourseEdit} />
-      <Resource name="units" recordRepresentation="title" list={UnitList} create={UnitCreate} edit={UnitEdit} />
-      <Resource name="vocabularys" recordRepresentation="title" list={VocabularyList} create={VocabularyCreate} edit={VocabularyEdit} options={{ label: "Vocabularies" }}/>
-      <Resource name="vocabularyItems" recordRepresentation="title" list={VocabularyItemList} create={VocabularyItemCreate} edit={VocabularyItemEdit}/>
-      <Resource name="lessons" recordRepresentation="title" list={LessonList} create={LessonCreate} edit={LessonEdit} />
-      <Resource name="challenges" recordRepresentation="question" list={ChallengeList} create={ChallengeCreate} edit={ChallengeEdit} />
-      <Resource name="challengeOptions" recordRepresentation="text" list={ChallengeOptionsList} create={ChallengeOptionCreate} edit={ChallengeOptionEdit} options={{ label: "Challenge Options" }} />
-      <Resource name="challengeGames" recordRepresentation="title" list={ChallengeGamesList} create={ChallengeGameCreate} edit={ChallengeGameEdit} options={{ label: "Challenge Games" }}/>
-      <Resource name="quiz" recordRepresentation="title" list={QuizList} create={QuizCreate} edit={QuizEdit}/>
+    <Admin dataProvider={dataProvider} dashboard={Dashboard} layout={customLayout}>
+      <Resource name="courses" recordRepresentation="title" options={{ label: "Khóa học" }} list={CourseList} create={CourseCreate} edit={CourseEdit} />
+      <Resource name="units" recordRepresentation="title" options={{ label: "Bài học" }} list={UnitList} create={UnitCreate} edit={UnitEdit} />
+      <Resource name="vocabularys" recordRepresentation="title" options={{ label: "Từ vựng" }} list={VocabularyList} create={VocabularyCreate} edit={VocabularyEdit} />
+      <Resource name="vocabularyItems" recordRepresentation="title" options={{ label: "Chi tiết từ vựng" }} list={VocabularyItemList} create={VocabularyItemCreate} edit={VocabularyItemEdit}/>
+      <Resource name="lessons" recordRepresentation="title" options={{ label: "Bài giảng" }} list={LessonList} create={LessonCreate} edit={LessonEdit} />
+      <Resource name="challenges" recordRepresentation="question" options={{ label: "Bài tập" }} list={ChallengeList} create={ChallengeCreate} edit={ChallengeEdit} />
+      <Resource name="challengeOptions" recordRepresentation="text" options={{ label: "Đáp án bài tập" }} list={ChallengeOptionsList} create={ChallengeOptionCreate} edit={ChallengeOptionEdit} />
+      <Resource name="challengeGames" recordRepresentation="title" options={{ label: "Mini Game" }} list={ChallengeGamesList} create={ChallengeGameCreate} edit={ChallengeGameEdit} />
+      <Resource name="quiz" recordRepresentation="title" options={{ label: "Quiz" }} list={QuizList} create={QuizCreate} edit={QuizEdit}/>
     </Admin>
   );
 };
