@@ -10,9 +10,24 @@ import ChatComponent from "@/components/chat/chat-component";
 
 const font = Nunito({ subsets: ["latin"] });
 
+// export const metadata: Metadata = {
+//   title: "Learning App",
+//   description: "Ứng dụng học tiếng",
+// };
+
 export const metadata: Metadata = {
-  title: "Learning App",
-  description: "Ứng dụng học tiếng",
+  // ... title, description ...
+  applicationName: 'LearningApp',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default', // hoặc 'black-translucent'
+    title: 'LearningApp',
+    // startupImage: [ ... ] // Có thể thêm ảnh khởi động cho iOS
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  // Nếu dùng manifest.ts thì không cần link manifest ở đây
 };
 
 export default function RootLayout({

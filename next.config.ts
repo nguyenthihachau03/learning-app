@@ -1,9 +1,19 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const withPWA = require('next-pwa')({
+  dest: 'public', // Thư mục đích cho service worker
+  register: true, // Tự động đăng ký SW (không cần code trong layout nữa)
+  skipWaiting: true, // Kích hoạt SW mới ngay lập tức
+  disable: process.env.NODE_ENV === 'development', // Tắt PWA khi dev
+  // buildExcludes: [/middleware-manifest.json$/], // Bỏ comment nếu gặp lỗi build liên quan
+});
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Các cấu hình Next.js khác của bạn
   /* config options here */
   eslint: {
-    ignoreDuringBuilds: true, // ✅ Bỏ qua ESLint khi build
+    ignoreDuringBuilds: true, // Bỏ qua ESLint khi build
   },
   async headers() {
     return [
@@ -29,6 +39,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  reactStrictMode: true,
 };
 
-export default nextConfig;
+module.exports = withPWA(nextConfig);

@@ -37,6 +37,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.469.0",
     "next": "15.1.4",
+    "next-pwa": "^5.6.0",
     "next-themes": "^0.4.4",
     "payos-checkout": "^1.0.9",
     "ra-core": "^4.16.12",

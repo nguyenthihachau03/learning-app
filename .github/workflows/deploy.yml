@@ -38,6 +38,9 @@ jobs:
             echo "✅ Giải nén file build..."
             tar -xzf next-build.tar.gz
 
+            echo "✅ Thiết lập quyền thực thi cho Next.js..."
+            chmod +x node_modules/.bin/next
+
             echo "✅ Cài đặt dependencies..."
             npm install --production --force
 
